@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run migrate-prod && npm run generate && next build --webpack",
+    "build": "npm run migrate-prod && npm run generate && next build ",
     "migrate-prod": "npx prisma migrate deploy",
     "generate": "npx prisma generate",
     "start": "next start",
