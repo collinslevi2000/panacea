@@ -2,24 +2,126 @@
 
 import React, { ChangeEvent, JSX, useEffect, useMemo, useState } from "react";
 
-import Admin from "./Admin";
+
 import GeneratePdfView from "./GeneratePdfView";
 
 import Main from "./IdmeAndBackground/Main";
+import Modal from "../components/Modal";
+import { ModalView, useModalStore } from "../store/useModalStore";
+import ApplicantProfile from "./ApplicantView";
+type BackgroundCheckData = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  email: string;
+  phone: string;
+  dob: string;
+  ssn: string;
+  employer: string;
+  jobTitle: string;
+  ref1Name: string;
+  ref1Phone: string;
+  ref1Email: string;
+  ref2Name: string;
+  ref2Phone: string;
+  ref2Email: string;
+  criminalRecord: string;
+  dlFront: string;
+  dlBack: string;
+  applicantId: string;
+};
 
+type IDMEData = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  firstName: string;
+  lastName: string;
+  otherNames: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  email: string;
+  phone: string;
+  dob: string;
+  ssn: string;
+  idmeUsername: string;
+  idmePassword: string;
+  fatherFirst: string;
+  fatherLast: string;
+  motherFirst: string;
+  motherLast: string;
+  mothersMaiden: string;
+  stateOfBirth: string;
+  cityOfBirth: string;
+  dlFront: string;
+  dlBack: string;
+  w2ssl: string;
+  applicantId: string;
+};
+
+type ApplicantData = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dob: string;
+  location: string;
+  device: string;
+  internet: string;
+  availability: string;
+  experience: string;
+  s3Url: string | null;
+  note: string;
+  status: string;
+  idme: IDMEData | null;
+  backgroundCheck: BackgroundCheckData | null;
+};
 export default function AdminDashboard(): React.ReactElement {
   type ViewKey = "applicants" | "pdf" | "idme";
+    const [applicants, setApplicants] = useState<ApplicantData[]>([]);
+  
+  const { closeModal, isOpen, view } = useModalStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function fetchApplicants() {
+    setLoading(true);
+    setError(null);
 
-  const views: Record<ViewKey, JSX.Element> = {
+    try {
+      const res = await fetch("/api/applicants");
+      if (!res.ok) throw new Error("Failed to load applicants");
+
+      const data = await res.json();
+      setApplicants(data.data ?? []);
+    } catch (err: any) {
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    fetchApplicants();
+  }, []);
+
+
+  const currViews: Record<ViewKey, JSX.Element> = {
     pdf: <GeneratePdfView />,
-    applicants: <Admin />,
+    applicants: <ApplicantProfile applicants={applicants}/>,
     idme: <Main />,
   };
 
-  const [view, setView] = useState<ViewKey>("idme");
+  const [currView, setView] = useState<ViewKey>("idme");
   function handleSelect(e: ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value as ViewKey;
-    if (value in views) setView(value);
+    if (value in currViews) setView(value);
     else setView("pdf"); // fallback for unknown value
   }
   return (
@@ -41,7 +143,8 @@ export default function AdminDashboard(): React.ReactElement {
           </select>
         </div>
       </div>
-      {views[view]}
+      {currViews[currView]}
+      
     </>
   );
 }
