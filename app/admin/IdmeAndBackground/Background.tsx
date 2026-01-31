@@ -30,6 +30,7 @@ const Background: FC<BackgroundProps> = ({}) => {
       });
       await new Promise((res) => setTimeout(res, 2000));
       const data = await res.json();
+      setForm(initialFormState)
     } catch (err: any) {
       setbackgroundLoading(false);
     } finally {

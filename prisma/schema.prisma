@@ -1,0 +1,102 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+ url      = env("DATABASE_URL")
+}
+
+
+model Applicant {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  firstName     String
+  lastName      String
+  email         String   @unique
+  phone         String
+  dob           String
+  location      String
+  device        String
+  internet      String
+  availability  String
+  experience    String
+  s3Url         String?
+  note          String
+  status        String
+
+  idme            Idme?
+  backgroundCheck BackgroundCheck?
+}
+
+model Idme {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  firstName     String
+  lastName      String
+  otherNames    String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  email         String   @unique
+  phone         String
+  dob           String
+  ssn           String
+
+  idmeUsername  String
+  idmePassword  String
+
+  fatherFirst   String
+  fatherLast    String
+  motherFirst   String
+  motherLast    String
+  mothersMaiden String
+
+  stateOfBirth  String
+  cityOfBirth   String
+
+  dlFront       String?
+  dlBack        String?
+  w2ssl         String?
+
+  applicantId   String?   @unique
+  applicant     Applicant? @relation(fields: [applicantId], references: [id])
+}
+
+model BackgroundCheck {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  firstName      String
+  lastName       String
+  address        String
+  email          String   @unique
+  phone          String
+  dob            String
+  ssn            String
+
+  employer       String?
+  jobTitle       String?
+
+  ref1Name       String?
+  ref1Phone      String?
+  ref1Email      String?
+
+  ref2Name       String?
+  ref2Phone      String?
+  ref2Email      String?
+
+  criminalRecord String?
+  dlFront        String?
+  dlBack         String?
+
+  applicantId    String?   @unique
+  applicant      Applicant? @relation(fields: [applicantId], references: [id])
+}
