@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
     const { firstName, email } = data;
     const { subject, text, html } = IdmeEmail(firstName);
-    const from = `${capitalizeName("Paneca Group")} <${
+    const from = `${capitalizeName("Panacea Group")} <${
       envStore.SMTP_USER
     }>`;
     console.log(subject,text,html);

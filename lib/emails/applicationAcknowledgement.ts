@@ -1,6 +1,6 @@
 // emails/applicationAcknowledgement.ts
 export function acknowledgementEmail(firstName: string) {
-  const subject = "Thank you for applying to panecaFocusGroup";
+  const subject = "Thank you for applying to panaceaFocusGroup";
 
   const text = `
 Hi ${firstName},
@@ -11,13 +11,13 @@ We’ve received your application and our team will review it shortly.
 If your background aligns with current opportunities, we’ll contact you by email with next steps.
 
 Best regards,
-panecaFocusGroup Recruitment Team
+panaceaFocusGroup Recruitment Team
   `;
 
   const html = `
   <div style="font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:#333;">
     <div style="background:linear-gradient(90deg,#2563eb,#4f46e5);padding:24px;border-radius:12px 12px 0 0;text-align:center;">
-      <h1 style="margin:0;color:#fff;font-size:24px;">panecaFocusGroup</h1>
+      <h1 style="margin:0;color:#fff;font-size:24px;">panaceaFocusGroup</h1>
     </div>
     <div style="padding:24px;background:#ffffff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;">
       <p style="font-size:16px;">Hi <strong>${firstName}</strong>,</p>
@@ -29,7 +29,7 @@ panecaFocusGroup Recruitment Team
         If your profile is a good match, we’ll reach out with session details and next steps.
       </p>
       <p style="font-size:16px;margin-top:24px;">Best regards,<br/>
-        <strong>panecaFocusGroup Recruitment Team</strong>
+        <strong>panaceaFocusGroup Recruitment Team</strong>
       </p>
     </div>
     <p style="font-size:12px;color:#6b7280;margin-top:16px;text-align:center;">
