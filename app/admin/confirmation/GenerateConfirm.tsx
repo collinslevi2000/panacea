@@ -24,7 +24,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
   const [confirmationData, setConfirmationData] = useState<ConfirmationData>({
     employeeName: "",
     date: new Date().toISOString().split("T")[0],
-    logoUrl: "/logo 1.png",
+    logoUrl: "/logo.JPG",
     position: "Data Entry Clerk",
     startDate: new Date().toISOString().split("T")[0],
     hourlyRate: "29.79",
@@ -105,7 +105,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               name="employeeName"
               value={confirmationData.employeeName}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black  "
               placeholder="Enter employee full name"
             />
           </div>
@@ -115,6 +115,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               Letter Date
             </label>
             <CustomDatePicker
+            
               name="date"
               value={confirmationData.date}
               onChange={handleDateChange}
@@ -128,7 +129,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
                 name="position"
                 value={confirmationData.position}
                 onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg text-black"
                 placeholder="Enter position title"
               />
             </div>
@@ -155,7 +156,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               name="hourlyRate"
               value={confirmationData.hourlyRate}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black"
               placeholder="29.79"
             />
           </div>

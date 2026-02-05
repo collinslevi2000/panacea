@@ -18,7 +18,7 @@ const AgreementGenerator: React.FC = () => {
   const [agreementData, setAgreementData] = useState<AgreementData>({
     employeeName: "",
     date: new Date().toISOString().split("T")[0],
-    logoUrl: "/logo 1.png",
+    logoUrl: "/logo.jpg",
     position: "Data entry clerk",
     startDate: new Date().toISOString().split("T")[0],
     hourlyRate: "29.90",
@@ -103,7 +103,7 @@ const AgreementGenerator: React.FC = () => {
               name="employeeName"
               value={agreementData.employeeName}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black"
               placeholder="Enter employee name"
             />
           </div>
@@ -137,7 +137,7 @@ const AgreementGenerator: React.FC = () => {
                 name="position"
                 value={agreementData.position}
                 onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg text-black"
                 placeholder="Enter position"
               />
             </div>
@@ -164,7 +164,7 @@ const AgreementGenerator: React.FC = () => {
               name="hourlyRate"
               value={agreementData.hourlyRate}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black"
               placeholder="29.90"
             />
           </div>

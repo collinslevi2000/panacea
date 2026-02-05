@@ -5,7 +5,7 @@ const addFooterVectors = (
   pageWidth: number,
   pageHeight: number,
 ) => {
-  const primaryColor = "#4F46E5"; // Indigo color
+  const primaryColor = "#000000"; // Indigo color
 
   // Save current graphics state
   pdf.saveGraphicsState();
@@ -135,8 +135,8 @@ const addSection = (
 export const generatePDF = (agreementData: AgreementData) => {
   const pdf = new jsPDF("p", "mm", "a4");
   const margin = 20;
-  const logoWidth = 70;
-  const logoHeight = 15;
+  const logoWidth = 30;
+  const logoHeight = 20;
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   let yPosition = 20;

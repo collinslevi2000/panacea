@@ -18,7 +18,7 @@ export interface JobDetailsData {
 
 const JobDetailsGenerator: React.FC = () => {
   const [jobDetailsData, setJobDetailsData] = useState<JobDetailsData>({
-    logoUrl: "/logo 1.png",
+    logoUrl: "/logo.jpg",
     position: "Remote Data Entry Specialist",
     regularPay: "29.79",
     trainingPay: "25.51",
@@ -96,7 +96,7 @@ const JobDetailsGenerator: React.FC = () => {
               name="position"
               value={jobDetailsData.position}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black"
               placeholder="e.g., Remote Data Entry Specialist"
             />
           </div>
@@ -111,7 +111,7 @@ const JobDetailsGenerator: React.FC = () => {
                 name="regularPay"
                 value={jobDetailsData.regularPay}
                 onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg text-black"
                 placeholder="29.79"
               />
             </div>
@@ -124,7 +124,7 @@ const JobDetailsGenerator: React.FC = () => {
                 name="trainingPay"
                 value={jobDetailsData.trainingPay}
                 onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg text-black"
                 placeholder="25.51"
               />
             </div>
