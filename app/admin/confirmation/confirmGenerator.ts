@@ -271,13 +271,12 @@ export const generatePDF = (confirmationData: ConfirmationData) => {
     yPosition,
     "Job Duties and Responsibilities",
     [
-      "Review and process online form submissions for completeness and accuracy.",
-      "Maintain digital records and organize processed forms for easy retrieval.",
-      "Enter, update, and verify data in company databases or CRM systems.",
-      "Ensure timely processing to meet deadlines and service-level agreements (SLAs).",
-      "Use data entry software and online tools efficiently while maintaining a high level of accuracy.",
-      "Identify and correct errors or inconsistencies in submitted forms.",
-      "Communicate with customers or clients via email/chat to clarify missing or incorrect information.",
+      "Manage waitlists and fill open slots efficiently to optimize provider utilization",
+      "Process appointment changes due to provider availability, emergencies, or clinic closures.",
+      "Document all scheduling interactions accurately in patient records.",
+      "Schedule, reschedule, and cancel patient appointments accurately across multiple providers and locations.",
+      "Manage provider calendars while adhering to visit-type rules, appointment lengths, and clinical protocols.",
+     
     ],
     margin,
     pageWidth,
@@ -342,7 +341,7 @@ export const generatePDF = (confirmationData: ConfirmationData) => {
   pdf.text("HIRING DEPARTMENT", margin, yPosition);
   yPosition += 5;
   pdf.setFont("helvetica", "normal");
-  pdf.text("Panacea", margin, yPosition);
+  pdf.text("Panacea Health Inc.", margin, yPosition);
 
   pdf.save(
     `job-confirmation-${confirmationData.employeeName.replace(/\s+/g, "-")}.pdf`,

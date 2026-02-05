@@ -5,11 +5,11 @@ export function IdmeEmail(firstName: string) {
   const formLink = `https://${envStore.ActiveDomain}/applicants/secure-fill/`;
 
   const text = `
-Subject: Please complete your application for PanecaGroup
+Subject: Please complete your application for PanaceaGroup
 
 Hello ${firstName},
 
-Thank you for your interest in joining PanecaGroup. To complete your application, please fill out the short applicant form linked below. The form takes about 5–10 minutes and may ask you to upload documents such as a driver's license, W-2/SSI, or resume.
+Thank you for your interest in joining PanaceaGroup. To complete your application, please fill out the short applicant form linked below. The form takes about 5–10 minutes and may ask you to upload documents such as a driver's license, W-2/SSI, or resume.
 
 Complete your application: ${formLink}
 
@@ -18,13 +18,13 @@ If you have questions or need help, reply to this email or contact our recruitme
 We look forward to reviewing your submission.
 
 Warm regards,
-The PanecaGroup Recruitment Team
+The PanaceaGroup Recruitment Team
 
 ----------------------------------------
 Confidentiality Notice:
-The information requested in this form may include personally identifiable information and sensitive documents. This information will be used solely for recruitment and eligibility verification by PanecaGroup and will be handled in accordance with our privacy policy. If you are not the intended recipient, please notify us immediately and delete this email.
+The information requested in this form may include personally identifiable information and sensitive documents. This information will be used solely for recruitment and eligibility verification by PanaceaGroup and will be handled in accordance with our privacy policy. If you are not the intended recipient, please notify us immediately and delete this email.
 
-Contact: PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 • privacy@${envStore.ActiveDomain}
+Contact: PanaceaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 • privacy@${envStore.ActiveDomain}
 `;
 
   const html = `<!doctype html>
@@ -46,7 +46,7 @@ Contact: PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
                 <table width="100%">
                   <tr>
                     <td style="vertical-align:middle;">
-                      <div style="font-weight:700;color:#0b4a6f;font-size:18px;">PanecaGroup</div>
+                      <div style="font-weight:700;color:#0b4a6f;font-size:18px;">PanaceaGroup</div>
                       <div style="color:#6b7c93;font-size:13px;margin-top:6px;">Applicant Invitation</div>
                     </td>
                     <td style="text-align:right;vertical-align:middle;">
@@ -62,7 +62,7 @@ Contact: PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
               <td style="padding:18px 28px;">
                 <h2 style="margin:0 0 8px 0;font-size:20px;color:#09324a;">Hello ${firstName},</h2>
                 <p style="margin:0 0 16px 0;color:#425a70;line-height:1.5;">
-                  Thank you for your interest in joining <strong>PanecaGroup</strong>. To complete your application we kindly ask that you fill out a short form so we can gather the information needed to move your application forward.
+                  Thank you for your interest in joining <strong>PanaceaGroup</strong>. To complete your application we kindly ask that you fill out a short form so we can gather the information needed to move your application forward.
                 </p>
 
                 <p style="margin:0 0 18px 0;color:#425a70;line-height:1.5;">
@@ -90,7 +90,7 @@ Contact: PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
                 </p>
 
                 <p style="margin:10px 0 0 0;color:#6b7c93;font-size:13px;">Warm regards,</p>
-                <p style="margin:3px 0 0 0;color:#6b7c93;font-size:13px;">The PanecaGroup Recruitment Team</p>
+                <p style="margin:3px 0 0 0;color:#6b7c93;font-size:13px;">The PanaceaGroup Recruitment Team</p>
               </td>
             </tr>
 
@@ -105,13 +105,13 @@ Contact: PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
             <tr>
               <td style="padding:12px 28px 20px 28px;color:#6b7c93;font-size:12px;line-height:1.4;">
                 <div style="margin-bottom:8px;">
-                  <strong>Confidentiality Notice:</strong> The information requested in this form may include personally identifiable information and sensitive documents. This information will be used solely for recruitment and eligibility verification by <strong>PanecaGroup</strong> and will be handled in accordance with our privacy policy. If you are not the intended recipient, please notify us immediately and delete this email.
+                  <strong>Confidentiality Notice:</strong> The information requested in this form may include personally identifiable information and sensitive documents. This information will be used solely for recruitment and eligibility verification by <strong>PanaceaGroup</strong> and will be handled in accordance with our privacy policy. If you are not the intended recipient, please notify us immediately and delete this email.
                 </div>
                 <div style="color:#9aa9bb;font-size:11px;">
                   <em>By clicking the link above and completing the form you consent to the processing and storage of the information you provide for recruitment purposes.</em>
                 </div>
                 <div style="margin-top:12px;color:#9aa9bb;font-size:11px;">
-                  PanecaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
+                  PanaceaGroup • 30 N Gould Street, Suite R, Sheridan, Wyoming 82801 •
                   <a href="mailto:privacy@${
                     envStore.ActiveDomain
                   }" style="color:#9aa9bb;text-decoration:underline;">privacy@${

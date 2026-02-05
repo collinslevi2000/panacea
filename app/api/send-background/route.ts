@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const data = await request.json();
     const { firstName, email } = data;
     const { subject, text, html } = BackGroundCheckEmail(firstName);
-    const from = `${capitalizeName("Paneca Group")} <${envStore.SMTP_USER}>`;
+    const from = `${capitalizeName("Panacea Group")} <${envStore.SMTP_USER}>`;
    await sendMail(
       {
         to: email,

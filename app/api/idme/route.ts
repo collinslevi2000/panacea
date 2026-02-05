@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     // Convert File -> Buffer -> Readable for S3
 
     // const { subject, text, html } = acknowledgementEmail(application.firstName);
-    // const from = `${capitalizeName("paneca Group")} <${envStore.SMTP_USER}>`;
+    // const from = `${capitalizeName("panacea Group")} <${envStore.SMTP_USER}>`;
     // const mail = await sendMail({
     //   to: application.email,
     //   subject,
