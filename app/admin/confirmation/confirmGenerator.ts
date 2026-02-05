@@ -6,7 +6,7 @@ const addFooterVectors = (
   pageWidth: number,
   pageHeight: number,
 ) => {
-  const primaryColor = "#4F46E5";
+  const primaryColor = "#00000";
 
   pdf.saveGraphicsState();
 
@@ -63,7 +63,7 @@ const addFooterVectors = (
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
-  pdf.setTextColor(79, 70, 229);
+  pdf.setTextColor(0, 0, 0);
   pdf.text(`Panacea - Confidential`, pageWidth / 2, pageHeight - 5, {
     align: "center",
   });
@@ -185,8 +185,8 @@ export const generatePDF = (confirmationData: ConfirmationData) => {
   // Header with logo (centered)
   if (confirmationData.logoUrl) {
     try {
-      const logoWidth = 70;
-      const logoHeight = 15;
+      const logoWidth = 30;
+      const logoHeight = 25;
       const x = (pageWidth - logoWidth) / 2;
       pdf.addImage(
         confirmationData.logoUrl,
@@ -208,7 +208,7 @@ export const generatePDF = (confirmationData: ConfirmationData) => {
   // Document title (centered)
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(18);
-  pdf.setTextColor(79, 70, 229);
+  pdf.setTextColor(0, 0, 0);
   pdf.text("JOB CONFIRMATION LETTER", pageWidth / 2, yPosition, {
     align: "center",
   });

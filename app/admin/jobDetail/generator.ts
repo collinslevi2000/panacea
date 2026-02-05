@@ -6,7 +6,7 @@ const addFooterVectors = (
   pageWidth: number,
   pageHeight: number,
 ) => {
-  const primaryColor = "#4F46E5";
+  const primaryColor = "#000000";
 
   pdf.saveGraphicsState();
 
@@ -63,7 +63,7 @@ const addFooterVectors = (
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
-  pdf.setTextColor(79, 70, 229);
+  pdf.setTextColor(0, 0, 0);
   pdf.text(`Panacea - Confidential`, pageWidth / 2, pageHeight - 5, {
     align: "center",
   });
@@ -171,8 +171,8 @@ export const generatePDF = (jobDetailsData: JobDetailsData) => {
   // Header with logo (centered)
   if (jobDetailsData.logoUrl) {
     try {
-      const logoWidth = 70;
-      const logoHeight = 15;
+      const logoWidth = 40;
+      const logoHeight = 25;
       const x = (pageWidth - logoWidth) / 2;
       pdf.addImage(
         jobDetailsData.logoUrl,
@@ -197,9 +197,9 @@ export const generatePDF = (jobDetailsData: JobDetailsData) => {
     yPosition,
     "ABOUT Panacea",
     [
-      "Panacea was founded to integrate cutting-edge technologies in web, mobility, user experience design, workflows, engagement techniques, and cloud computing to significantly improve healthcare and, ultimately, the patient experience. This is the foundation of thePanacea software platform.",
+      "Panacea is supported by a diverse group of innovators, scientists and entrepreneurs with healthcare, technology and business backgrounds. Each individual adds invaluable perspective, experience and outside-of-the-box thinking.",
       "",
-      "After listening to hospitals, surgeons, medical staff, post-acute providers, and patients, we focused on solving the most complex problems to make healthcare better.",
+      "",
     ],
     margin,
     pageWidth,
