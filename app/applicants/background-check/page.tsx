@@ -86,7 +86,7 @@ export default function ApplicationForm() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
-    if (!validate()) return;
+    // if (!validate()) return;
     setSubmitting(true);
     try {
       const fd = new FormData();

@@ -29,10 +29,10 @@ export default function ApplicationForm() {
     e.preventDefault();
     secureFill.setMessage(null);
 
-    if (!validate()) {
-      console.log("not validated");
-      return;
-    }
+    // if (!validate()) {
+    //   console.log("not validated");
+    //   return;
+    // }
 
     setSubmitting(true);
     try {
