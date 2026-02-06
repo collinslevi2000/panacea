@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import { generatePDF } from "./generator";
+import { useModalStore } from "@/app/store/useModalStore";
+import useJobStore from "@/app/store/useJobStore";
+import { JobDetail } from "../jobSection/JobDetail";
 
 export interface JobDetailsData {
   logoUrl: string;
@@ -14,9 +17,14 @@ export interface JobDetailsData {
   equipmentDetails: string;
   trainingDuration: string;
   hrManagerName: string;
+  responsibilities: string[] 
+  qualifications: string[] 
 }
 
 const JobDetailsGenerator: React.FC = () => {
+  const {openModal,isOpen} = useModalStore()
+  const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs} = useJobStore();
+ 
   const [jobDetailsData, setJobDetailsData] = useState<JobDetailsData>({
     logoUrl: "/logo.jpg",
     position: "Remote Data Entry Specialist",
@@ -29,10 +37,15 @@ const JobDetailsGenerator: React.FC = () => {
     equipmentDetails: "Apple MacBook Pro or iMac",
     trainingDuration: "two weeks",
     hrManagerName: "Brian McDaniel",
+    responsibilities:selectedJob?.responsibilities || [],
+    qualifications:selectedJob?.qualifications || [],
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
+  function handleAddJob(){
+    openModal("addJob")
+  }
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -42,6 +55,23 @@ const JobDetailsGenerator: React.FC = () => {
       [name]: value,
     }));
   };
+   const handleJobInputChange = (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
+      const { name, value } = e.target;
+     const currentJob =  jobs.find((j)=> j.title === value)
+     if(!currentJob)return
+     setSelectedJob(currentJob)
+      
+     setJobDetailsData((prev) => ({
+        ...prev,
+        [name]: value,
+        responsibilities:currentJob.responsibilities,
+        qualifications:currentJob.qualifications
+      }));
+    };
 
   //   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   //     const file = e.target.files?.[0];
@@ -200,7 +230,7 @@ const JobDetailsGenerator: React.FC = () => {
             />
           </div> */}
 
-          {/* <div>
+          <div>
             <label className="block text-sm font-medium mb-2">
               HR Manager Name
             </label>
@@ -209,10 +239,37 @@ const JobDetailsGenerator: React.FC = () => {
               name="hrManagerName"
               value={jobDetailsData.hrManagerName}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg text-black"
               placeholder="e.g., Devan Kunz"
             />
-          </div> */}
+          </div> 
+          
+           <div className="mt-5 borer rounded-lg border-gray-500 p-3">
+                    
+                    <div>
+                        <label className= " flex items-center flex-row justify-between text-sm font-medium mb-2">
+                          <div>
+                          Job Position
+                          </div>
+                          <button onClick={handleAddJob} type="button" className="bg-gray-500 p-2 rounded-lg hover:bg-gray-800 hover:text-gray-100 transition-all duration-500">
+                         + Add Position
+                          </button>
+                          </label>
+                        <select
+                          className="w-full p-3 border rounded-lg bg-gray-900 "
+                          name="position"
+                          onChange={handleJobInputChange}
+                        >
+                          <option value="">Select Position</option>
+                         {jobs.map((jj,idx)=>(<option value={jj.title} key={idx}>{jj.title}</option>))}
+                        </select>
+                      </div>
+          
+                     {selectedJob && <div>
+                     <JobDetail/>
+                      </div>}
+          
+                  </div>
         </div>
 
         <button

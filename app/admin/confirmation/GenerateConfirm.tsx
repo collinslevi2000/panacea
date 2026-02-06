@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import CustomDatePicker from "@/app/components/CustomDatePicker";
-import GeneratePdfView from "../GeneratePdfView";
 import { generatePDF } from "./confirmGenerator";
+import useJobStore from "@/app/store/useJobStore";
+import { JobDetail } from "../jobSection/JobDetail";
+import { useModalStore } from "@/app/store/useModalStore";
 
 export interface ConfirmationData {
   employeeName: string;
@@ -18,22 +20,31 @@ export interface ConfirmationData {
   phoneNumber: string;
   email: string;
   jobType: string;
+  responsibilities: string[] 
+  
 }
 
 const ConfirmationLetterGenerator: React.FC = () => {
+  const {openModal,isOpen} = useModalStore()
+  const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs} = useJobStore();
+ 
+
   const [confirmationData, setConfirmationData] = useState<ConfirmationData>({
     employeeName: "",
     date: new Date().toISOString().split("T")[0],
     logoUrl: "/logo.JPG",
-    position: "Appointment Scheduler",
+    position: "",
     startDate: new Date().toISOString().split("T")[0],
     hourlyRate: "29.79",
-    supervisorName: "Bradley Smith",
+    supervisorName: "",
     trainingDate: new Date().toISOString().split("T")[0],
     fullAddress: "",
     phoneNumber: "",
     email: "",
     jobType: "",
+    responsibilities: selectedJob?.responsibilities || [],
+   
+
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -49,6 +60,24 @@ const ConfirmationLetterGenerator: React.FC = () => {
       [name]: value,
     }));
   };
+  const handleJobInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+   const currentJob =  jobs.find((j)=> j.title === value)
+   if(!currentJob)return
+   setSelectedJob(currentJob)
+    
+    setConfirmationData((prev) => ({
+      ...prev,
+      [name]: value,
+      responsibilities:currentJob.responsibilities,
+      qualifications:currentJob.qualifications
+    }));
+  };
+
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,6 +113,39 @@ const ConfirmationLetterGenerator: React.FC = () => {
     }
   };
 
+  function handleGenerate(){
+    console.log(confirmationData);
+    if(!confirmationData.employeeName){
+      alert("You need to enter Employee Name")
+      return
+    }
+    if(!confirmationData.jobType){
+      alert("You need to enter Part time or full time")
+      return 
+    }
+    if(!confirmationData.supervisorName){
+      alert("You need to enter Supervisor Name")
+      return 
+    }
+    if(!selectedJob){
+      alert("You need to select a position")
+      return }
+    generatePDF(confirmationData)
+  }
+
+  function handleAddJob(){
+    openModal("addJob")
+  }
+
+ const jbResp =  [
+    "Manage waitlists and fill open slots efficiently to optimize provider utilization",
+    "Process appointment changes due to provider availability, emergencies, or clinic closures.",
+    "Document all scheduling interactions accurately in patient records.",
+    "Schedule, reschedule, and cancel patient appointments accurately across multiple providers and locations.",
+    "Manage provider calendars while adhering to visit-type rules, appointment lengths, and clinical protocols.",
+   
+  ]
+
   return (
     <div className="container mx-auto p-6 max-w-2xl">
       <h1 className="text-3xl font-bold mb-6 text-center">
@@ -109,6 +171,8 @@ const ConfirmationLetterGenerator: React.FC = () => {
               placeholder="Enter employee full name"
             />
           </div>
+<div>
+<div className="flex flex-row space-x-5">
 
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -121,7 +185,21 @@ const ConfirmationLetterGenerator: React.FC = () => {
               onChange={handleDateChange}
             />
           </div>
-          <div className="flex flex-row justify-between">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Training Start Date
+            </label>
+            <CustomDatePicker
+              name="trainingDate"
+              value={confirmationData.trainingDate}
+              onChange={handleDateChange}
+            />
+           
+          </div>
+</div>
+</div>
+
+          <div className="flex flex-row space-x-5 justify-between">
             <div>
               <label className="block text-sm font-medium mb-2">Position</label>
               <input
@@ -133,6 +211,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
                 placeholder="Enter position title"
               />
             </div>
+           
             <div>
               <label className="block text-sm font-medium mb-2">Job Type</label>
               <select
@@ -146,6 +225,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               </select>
             </div>
           </div>
+<div className="flex flex-row space-x-5 justify-between">
 
           <div>
             <label className="block text-sm font-medium mb-2">
@@ -160,8 +240,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               placeholder="29.79"
             />
           </div>
-
-          {/* <div>
+          <div>
             <label className="block text-sm font-medium mb-2">
               Supervisor's Name
             </label>
@@ -170,86 +249,48 @@ const ConfirmationLetterGenerator: React.FC = () => {
               name="supervisorName"
               value={confirmationData.supervisorName}
               onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border text-black rounded-lg"
               placeholder="Enter supervisor name"
             />
-          </div> */}
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Training Start Date
-            </label>
-            <CustomDatePicker
-              name="trainingDate"
-              value={confirmationData.trainingDate}
-              onChange={handleDateChange}
-            />
-            {/* <input
-              type="text"
-              name="trainingDate"
-              value={confirmationData.trainingDate}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., October 06, 2025"
-            /> */}
           </div>
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Employee Address
-            </label>
-            <textarea
-              name="fullAddress"
-              value={confirmationData.fullAddress}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="Enter full home address"
-              rows={3}
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={confirmationData.phoneNumber}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="Enter preferred phone number"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={confirmationData.email}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="Enter email address"
-            />
-          </div> */}
+</div>
         </div>
+        <div className="mt-5 borer rounded-lg border-gray-500 p-3">
+          
+          <div>
+              <label className= " flex items-center flex-row justify-between text-sm font-medium mb-2">
+                <div>
+                Job Position
+                </div>
+                <button onClick={handleAddJob} type="button" className="bg-gray-500 p-2 rounded-lg hover:bg-gray-800 hover:text-gray-100 transition-all duration-500">
+               + Add Position
+                </button>
+                </label>
+              <select
+                className="w-full p-3 border rounded-lg bg-gray-900 "
+                name="position"
+                onChange={handleJobInputChange}
+              >
+                <option value="">Select Position</option>
+               {jobs.map((jj,idx)=>(<option value={jj.title} key={idx}>{jj.title}</option>))}
+              </select>
+            </div>
+
+           {selectedJob && <div>
+           <JobDetail/>
+            </div>}
+
+        </div>
+        {/* <JobMain/> */}
 
         <button
-          onClick={() => generatePDF(confirmationData)}
+          onClick={handleGenerate}
           className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold mt-6"
         >
           Generate Job Confirmation PDF
         </button>
 
-        {/* <div className="mt-4 p-4 bg-green-50 rounded-lg">
-          <p className="text-sm text-green-800">
-            This generator will create a professional job confirmation letter
-            PDF with proper left alignment and text wrapping within margins.
-          </p>
-        </div> */}
+       
       </div>
     </div>
   );

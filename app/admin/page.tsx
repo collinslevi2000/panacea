@@ -9,6 +9,8 @@ import Main from "./IdmeAndBackground/Main";
 import Modal from "../components/Modal";
 import { ModalView, useModalStore } from "../store/useModalStore";
 import ApplicantProfile from "./ApplicantView";
+import useJobStore from "../store/useJobStore";
+import { JobForm } from "./jobSection/JobForm";
 type BackgroundCheckData = {
   id: string;
   createdAt: string;
@@ -87,6 +89,8 @@ type ApplicantData = {
 export default function AdminDashboard(): React.ReactElement {
   type ViewKey = "applicants" | "pdf" | "idme";
     const [applicants, setApplicants] = useState<ApplicantData[]>([]);
+    const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs, fetchJobs} = useJobStore();
+
   
   const { closeModal, isOpen, view } = useModalStore();
   const [loading, setLoading] = useState(false);
@@ -109,6 +113,7 @@ export default function AdminDashboard(): React.ReactElement {
   }
   useEffect(() => {
     fetchApplicants();
+fetchJobs()
   }, []);
 
 
@@ -116,6 +121,10 @@ export default function AdminDashboard(): React.ReactElement {
     pdf: <GeneratePdfView />,
     applicants: <ApplicantProfile applicants={applicants}/>,
     idme: <Main />,
+    
+  };
+  const views: Partial<Record<ModalView, JSX.Element>> = {
+   addJob:<JobForm/>
   };
 
   const [currView, setView] = useState<ViewKey>("idme");
@@ -144,6 +153,9 @@ export default function AdminDashboard(): React.ReactElement {
         </div>
       </div>
       {currViews[currView]}
+      <Modal isOpen={isOpen} onClose={closeModal}>
+        {views[view]}
+      </Modal>
       
     </>
   );

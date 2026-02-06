@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import CustomDatePicker from "@/app/components/CustomDatePicker";
 import { generatePDF } from "./agreementGen";
+import { useModalStore } from "@/app/store/useModalStore";
+import useJobStore from "@/app/store/useJobStore";
+import { JobDetail } from "../jobSection/JobDetail";
 
 export interface AgreementData {
   employeeName: string;
@@ -12,9 +15,17 @@ export interface AgreementData {
   startDate: string;
   hourlyRate: string;
   jobType: string;
+  HeadOfHr:string
+
+  
 }
 
 const AgreementGenerator: React.FC = () => {
+    const {openModal,isOpen} = useModalStore()
+    const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs} = useJobStore();
+
+    
+  
   const [agreementData, setAgreementData] = useState<AgreementData>({
     employeeName: "",
     date: new Date().toISOString().split("T")[0],
@@ -23,7 +34,31 @@ const AgreementGenerator: React.FC = () => {
     startDate: new Date().toISOString().split("T")[0],
     hourlyRate: "29.90",
     jobType: "",
+    HeadOfHr:"Brian McDaniel"
+  
   });
+  
+  
+  const handleJobInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+   const currentJob =  jobs.find((j)=> j.title === value)
+   if(!currentJob)return
+   setSelectedJob(currentJob)
+    
+   setAgreementData((prev) => ({
+      ...prev,
+      [name]: value,
+      responsibilities:currentJob.responsibilities,
+      qualifications:currentJob.qualifications
+    }));
+  };
+  function handleAddJob(){
+    openModal("addJob")
+  }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -94,7 +129,9 @@ const AgreementGenerator: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">Customize Agreement</h2>
 
         <div className="space-y-4">
-          <div>
+          <div className="flex flex-row space-x-5 items-center justify-between">
+            <div>
+
             <label className="block text-sm font-medium mb-2">
               Employee Name
             </label>
@@ -106,6 +143,21 @@ const AgreementGenerator: React.FC = () => {
               className="w-full p-3 border rounded-lg text-black"
               placeholder="Enter employee name"
             />
+            </div>
+            <div>
+
+            <label className="block text-sm font-medium mb-2">
+              Head Of Hr Name
+            </label>
+            <input
+              type="text"
+              name="HeadOfHr"
+              value={agreementData.HeadOfHr}
+              onChange={handleInputChange}
+              className="w-full p-3 border rounded-lg text-black"
+              placeholder="Enter HR Head name"
+            />
+            </div>
           </div>
           <div className="flex md:flex-row  justify-between">
             <div>
@@ -129,18 +181,8 @@ const AgreementGenerator: React.FC = () => {
               />
             </div>
           </div>
-          <div className="flex flex-row justify-between">
-            <div>
-              <label className="block text-sm font-medium mb-2">Position</label>
-              <input
-                type="text"
-                name="position"
-                value={agreementData.position}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg text-black"
-                placeholder="Enter position"
-              />
-            </div>
+          <div className="flex items-center flex-row justify-between">
+           
             <div>
               <label className="block text-sm font-medium mb-2">Job Type</label>
               <select
@@ -153,9 +195,7 @@ const AgreementGenerator: React.FC = () => {
                 <option value="part-time">Part Time</option>
               </select>
             </div>
-          </div>
-
-          <div>
+            <div>
             <label className="block text-sm font-medium mb-2">
               Hourly Rate ($)
             </label>
@@ -168,7 +208,36 @@ const AgreementGenerator: React.FC = () => {
               placeholder="29.90"
             />
           </div>
+          </div>
+
+      
         </div>
+        <div className="mt-5 borer rounded-lg border-gray-500 p-3 my-5">
+                  
+                  <div className="my-3">
+                      <label className= " flex items-center flex-row justify-between text-sm font-medium mb-2">
+                        <div>
+                        Job Position
+                        </div>
+                        <button onClick={handleAddJob} type="button" className="bg-gray-500 p-2 rounded-lg hover:bg-gray-800 hover:text-gray-100 transition-all duration-500">
+                       + Add Position
+                        </button>
+                        </label>
+                      <select
+                        className="w-full p-3 border rounded-lg bg-gray-900 "
+                        name="position"
+                        onChange={handleJobInputChange}
+                      >
+                        <option value="">Select Position</option>
+                       {jobs.map((jj,idx)=>(<option value={jj.title} key={idx}>{jj.title}</option>))}
+                      </select>
+                    </div>
+        
+                   {selectedJob && <div>
+                   <JobDetail/>
+                    </div>}
+        
+                </div>
 
         <button
           onClick={() => generatePDF(agreementData)}

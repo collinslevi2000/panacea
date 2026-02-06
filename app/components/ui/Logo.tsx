@@ -29,8 +29,7 @@ export default function Logo({
   const dimensions = sizeMap[size];
 
   return (
-    <Link href="/" className={className} aria-label="Panacea Home">
-      <div className="relative">
+    <Link href="/" className={`${className} relative` } aria-label="Panacea Home">  
         <Image
           src={logoMap[variant]}
           alt="White Panacea logo"
@@ -39,7 +38,7 @@ export default function Logo({
           className="h-auto object-contain"
           priority
         />
-      </div>
+    
     </Link>
   );
 }

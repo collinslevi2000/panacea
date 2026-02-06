@@ -270,14 +270,7 @@ export const generatePDF = (confirmationData: ConfirmationData) => {
     pdf,
     yPosition,
     "Job Duties and Responsibilities",
-    [
-      "Manage waitlists and fill open slots efficiently to optimize provider utilization",
-      "Process appointment changes due to provider availability, emergencies, or clinic closures.",
-      "Document all scheduling interactions accurately in patient records.",
-      "Schedule, reschedule, and cancel patient appointments accurately across multiple providers and locations.",
-      "Manage provider calendars while adhering to visit-type rules, appointment lengths, and clinical protocols.",
-     
-    ],
+    confirmationData.responsibilities,
     margin,
     pageWidth,
     pageHeight,
