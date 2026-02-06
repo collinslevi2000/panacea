@@ -1,68 +1,139 @@
-import { FC } from "react";
-import { useSecureFill, UseSecureFillReturn } from "./useSecureFill";
+// app/components/FileUpload.tsx
+import React, { ChangeEvent } from 'react';
 
-interface FIlesUploadsProps
-  extends Pick<
-    UseSecureFillReturn,
-    "form" | "setForm" | "errors" | "setErrors"
-  > {}
+interface FileUploadProps {
+  label: string;
+  name: string;
+  onChange: (file: File | null) => void;
+  accept?: string;
+  required?: boolean;
+  error?: string;
+  helpText?: string;
+  maxSizeMB?: number;
+  currentFile?: File | null;
+}
 
-const FIlesUploads: FC<FIlesUploadsProps> = ({
-  form,
-  setForm,
-  setErrors,
-  errors,
+const FileUpload: React.FC<FileUploadProps> = ({
+  label,
+  name,
+  onChange,
+  accept = '*/*',
+  required = false,
+  error,
+  helpText,
+  maxSizeMB = 5,
+  currentFile,
 }) => {
+  const [fileName, setFileName] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (currentFile) {
+      setFileName(currentFile.name);
+    } else {
+      setFileName(null);
+    }
+  }, [currentFile]);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    
+    if (file) {
+      // Check file size
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        alert(`File size must be less than ${maxSizeMB}MB`);
+        e.target.value = '';
+        return;
+      }
+      
+      setFileName(file.name);
+    } else {
+      setFileName(null);
+    }
+    
+    onChange(file);
+  };
+
+  const handleRemove = () => {
+    setFileName(null);
+    onChange(null);
+  };
+
+  const getFileIcon = () => {
+    if (!fileName) return 'fas fa-cloud-upload-alt';
+    if (fileName.toLowerCase().endsWith('.pdf')) return 'fas fa-file-pdf';
+    if (fileName.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/)) return 'fas fa-file-image';
+    if (fileName.toLowerCase().endsWith('.doc') || fileName.toLowerCase().endsWith('.docx')) return 'fas fa-file-word';
+    return 'fas fa-file';
+  };
+
   return (
-    <>
-      <div className="grid  grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium">
-            Driver’s License Front
-          </label>
-          <input
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setForm({ ...form, dlFront: e.target.files?.[0] || null })
-            }
-          />
-          {errors.dlFront && (
-            <p className="text-red-600 text-sm">{errors.dlFront}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-medium">
-            Driver’s License Back
-          </label>
-          <input
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setForm({ ...form, dlBack: e.target.files?.[0] || null })
-            }
-          />
-          {errors.dlBack && (
-            <p className="text-red-600 text-sm">{errors.dlBack}</p>
-          )}
-        </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium">W2 or SSl</label>
+    <div className="mb-4">
+      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      
+      <div className={`
+        relative border-2 border-dashed rounded-lg p-6 text-center
+        ${error 
+          ? 'border-red-300 bg-red-50' 
+          : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
+        }
+        transition-colors cursor-pointer
+      `}>
         <input
-          className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          id={name}
           type="file"
-          accept="application/pdf,application/msword,.doc,.docx"
-          onChange={(e) =>
-            setForm({ ...form, W2SSl: e.target.files?.[0] || null })
-          }
+          name={name}
+          onChange={handleFileChange}
+          accept={accept}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
-        {errors.W2SSl && <p className="text-red-600 text-sm">{errors.W2SSl}</p>}
+        
+        <div className="space-y-2">
+          <div className="w-12 h-12 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+            <i className={getFileIcon()}></i>
+          </div>
+          <div>
+            <p className="text-sm text-gray-700">
+              <span className="font-medium text-blue-600">Click to upload</span>
+              {' '}or drag and drop
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {accept === 'image/*' 
+                ? 'PNG, JPG, GIF up to 5MB' 
+                : 'Documents up to 5MB'
+              }
+            </p>
+          </div>
+        </div>
       </div>
-    </>
+      
+      {fileName && (
+        <div className="mt-2 flex items-center justify-between p-2 bg-gray-100 rounded">
+          <span className="text-sm text-gray-700 truncate">{fileName}</span>
+          <button
+            type="button"
+            onClick={handleRemove}
+            className="text-red-600 hover:text-red-800"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+      )}
+      
+      {error && (
+        <p className="mt-1 text-sm text-red-600 flex items-center">
+          <i className="fas fa-exclamation-circle mr-1.5"></i>
+          {error}
+        </p>
+      )}
+      
+      {helpText && !error && (
+        <p className="mt-1 text-sm text-gray-500">{helpText}</p>
+      )}
+    </div>
   );
 };
 
-export default FIlesUploads;
+export default FileUpload;

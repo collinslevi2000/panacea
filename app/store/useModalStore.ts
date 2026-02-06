@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 export type ModalView =
 "default"
-  | "applicantView";
+  | "applicantView"| "addJob"
 
 interface ModalState {
   isOpen: boolean;

@@ -30,7 +30,6 @@ const Idme: FC<IdmeProps> = ({}) => {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      await new Promise((res) => setTimeout(res, 2000));
       setForm(initialFormState)
     } catch (err: any) {
       setIdmeLoading(false);

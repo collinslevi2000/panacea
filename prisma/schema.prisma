@@ -39,7 +39,7 @@ model Idme {
 
   firstName     String
   lastName      String
-  otherNames    String
+  otherNames    String?
   address       String
   city          String
   state         String
@@ -99,4 +99,14 @@ model BackgroundCheck {
 
   applicantId    String?   @unique
   applicant      Applicant? @relation(fields: [applicantId], references: [id])
+}
+
+model Job {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  title          String
+  description    String @db.Text
+  responsibilities String[] 
+  qualifications String[] 
 }

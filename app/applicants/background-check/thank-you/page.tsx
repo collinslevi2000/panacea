@@ -105,8 +105,7 @@ const ApplicationSuccess = () => {
           {/* Additional Info */}
           <div className="mt-8 text-sm text-gray-600 text-center">
             <p>
-              ApexFocusGroup — Connecting voices to shape better products and
-              services
+              Panacea Health Group — 
             </p>
             <p className="mt-2">
               <Link href="/#" className="text-blue-600 hover:underline">

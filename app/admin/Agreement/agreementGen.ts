@@ -396,12 +396,12 @@ export const generatePDF = (agreementData: AgreementData) => {
   yPosition += 15;
 
   pdf.setFont("helvetica", "bold");
-  pdf.text("Stephen Brandt", margin, yPosition);
+  pdf.text(agreementData.HeadOfHr, margin, yPosition);
   yPosition += 5;
   pdf.setFont("helvetica", "normal");
   pdf.text("Head of HR", margin, yPosition);
   yPosition += 5;
-  pdf.text("Panacea", margin, yPosition);
+  pdf.text("Panacea Health Inc.", margin, yPosition);
   yPosition += 20;
 
   // Employee acknowledgment

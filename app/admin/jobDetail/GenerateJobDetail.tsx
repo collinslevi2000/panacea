@@ -1,7 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import jsPDF from "jspdf";
+
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { generatePDF } from "./generator";
+import { useModalStore } from "@/app/store/useModalStore";
+import useJobStore from "@/app/store/useJobStore";
+import { JobDetail } from "../jobSection/JobDetail";
 
 export interface JobDetailsData {
   logoUrl: string;
@@ -14,216 +18,178 @@ export interface JobDetailsData {
   equipmentDetails: string;
   trainingDuration: string;
   hrManagerName: string;
+  responsibilities: string[];
+  qualifications: string[];
 }
 
 const JobDetailsGenerator: React.FC = () => {
+  const { openModal } = useModalStore();
+  const { jobs, setSelectedJob, selectedJob } = useJobStore();
+
   const [jobDetailsData, setJobDetailsData] = useState<JobDetailsData>({
     logoUrl: "/logo.jpg",
-    position: "Remote Data Entry Specialist",
+    position: "",
     regularPay: "29.79",
     trainingPay: "25.51",
-    fullTimeHours: "9:00 AM – 5:00 PM, Monday to Friday (40 hours/week)",
+    fullTimeHours:
+      "9:00 AM – 5:00 PM, Monday to Friday (40 hours/week)",
     partTimeHours:
       "Flexible schedule between 9:00 AM and 10:00 PM (minimum 20 hours/week)",
     paidTimeOff: "21",
     equipmentDetails: "Apple MacBook Pro or iMac",
     trainingDuration: "two weeks",
     hrManagerName: "Brian McDaniel",
+    responsibilities: selectedJob?.responsibilities || [],
+    qualifications: selectedJob?.qualifications || [],
   });
 
-  const [logoFile, setLogoFile] = useState<File | null>(null);
+  /* ---------------- Helpers ---------------- */
+
+  const updateField = (name: keyof JobDetailsData, value: any) => {
+    setJobDetailsData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
+    updateField(e.target.name as keyof JobDetailsData, e.target.value);
+  };
+
+  const handleJobInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    const job = jobs.find((j) => j.title === value);
+    if (!job) return;
+
+    setSelectedJob(job);
+
     setJobDetailsData((prev) => ({
       ...prev,
-      [name]: value,
+      position: job.title,
+      responsibilities: job.responsibilities,
+      qualifications: job.qualifications,
     }));
   };
 
-  //   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const file = e.target.files?.[0];
-  //     if (file && file.type.startsWith("image/")) {
-  //       setLogoFile(file);
-  //       const reader = new FileReader();
-  //       reader.onload = (event) => {
-  //         setJobDetailsData((prev) => ({
-  //           ...prev,
-  //           logoUrl: event.target?.result as string,
-  //         }));
-  //       };
-  //       reader.readAsDataURL(file);
-  //     }
-  //   };
+  const validate = () => {
+    if (!jobDetailsData.position) return "Position is required";
+    if (!jobDetailsData.hrManagerName) return "HR Manager name required";
+    return null;
+  };
 
-  // Function to add professional footer vectors
+  const handleGenerate = () => {
+    const error = validate();
+    if (error) return alert(error);
+    generatePDF(jobDetailsData);
+  };
+
+  /* ---------------- UI ---------------- */
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Job Details Document Generator
-      </h1>
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold">
+          Job Details Document Generator
+        </h1>
+        <p className="text-sm text-gray-400">
+          Configure job details and export a professional job details PDF.
+        </p>
+      </header>
 
-      <div className="bg-black p-6 rounded-lg shadow-md border">
-        <h2 className="text-xl font-semibold mb-4">
-          Customize Job Details Document
-        </h2>
+      <section className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-6 shadow-lg">
+        {/* Position */}
+        <Input
+          label="Position Title"
+          name="position"
+          value={jobDetailsData.position}
+          onChange={handleInputChange}
+          placeholder="Remote Data Entry Specialist"
+        />
 
-        <div className="space-y-4">
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Company Logo
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleLogoUpload}
-              className="w-full p-3 border rounded-lg"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Upload your company logo (optional)
-            </p>
-          </div> */}
+        {/* Pay */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Input
+            label="Regular Pay ($/hr)"
+            name="regularPay"
+            value={jobDetailsData.regularPay}
+            onChange={handleInputChange}
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Position Title
-            </label>
-            <input
-              type="text"
-              name="position"
-              value={jobDetailsData.position}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg text-black"
-              placeholder="e.g., Remote Data Entry Specialist"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Regular Pay Rate ($/hr)
-              </label>
-              <input
-                type="text"
-                name="regularPay"
-                value={jobDetailsData.regularPay}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg text-black"
-                placeholder="29.79"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Training Pay Rate ($/hr)
-              </label>
-              <input
-                type="text"
-                name="trainingPay"
-                value={jobDetailsData.trainingPay}
-                onChange={handleInputChange}
-                className="w-full p-3 border rounded-lg text-black"
-                placeholder="25.51"
-              />
-            </div>
-          </div>
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Full-Time Hours Description
-            </label>
-            <input
-              type="text"
-              name="fullTimeHours"
-              value={jobDetailsData.fullTimeHours}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., 9:00 AM – 5:00 PM, Monday to Friday (40 hours/week)"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Part-Time Hours Description
-            </label>
-            <input
-              type="text"
-              name="partTimeHours"
-              value={jobDetailsData.partTimeHours}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., Flexible schedule between 9:00 AM and 10:00 PM (minimum 20 hours/week)"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Paid Time Off (Days)
-            </label>
-            <input
-              type="text"
-              name="paidTimeOff"
-              value={jobDetailsData.paidTimeOff}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="21"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Equipment Details
-            </label>
-            <input
-              type="text"
-              name="equipmentDetails"
-              value={jobDetailsData.equipmentDetails}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., Apple MacBook Pro or iMac"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              Training Duration
-            </label>
-            <input
-              type="text"
-              name="trainingDuration"
-              value={jobDetailsData.trainingDuration}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., two weeks"
-            />
-          </div> */}
-
-          {/* <div>
-            <label className="block text-sm font-medium mb-2">
-              HR Manager Name
-            </label>
-            <input
-              type="text"
-              name="hrManagerName"
-              value={jobDetailsData.hrManagerName}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg"
-              placeholder="e.g., Devan Kunz"
-            />
-          </div> */}
+          <Input
+            label="Training Pay ($/hr)"
+            name="trainingPay"
+            value={jobDetailsData.trainingPay}
+            onChange={handleInputChange}
+          />
         </div>
 
+        {/* HR */}
+        <Input
+          label="HR Manager"
+          name="hrManagerName"
+          value={jobDetailsData.hrManagerName}
+          onChange={handleInputChange}
+        />
+
+        {/* Job Selector */}
+        <div className="space-y-3 border border-gray-800 rounded-xl p-4">
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium">Job Template</h3>
+            <button
+              onClick={() => openModal("addJob")}
+              className="text-sm px-3 py-1.5 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+            >
+              + Add Position
+            </button>
+          </div>
+
+          <select
+            className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700"
+            value={jobDetailsData.position}
+            onChange={handleJobInputChange}
+          >
+            <option value="">Select Position</option>
+            {jobs.map((j, i) => (
+              <option key={i} value={j.title}>
+                {j.title}
+              </option>
+            ))}
+          </select>
+
+          <AnimatePresence>
+            {selectedJob && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <JobDetail />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Action */}
         <button
-          onClick={() => generatePDF(jobDetailsData)}
-          className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold mt-6"
+          onClick={handleGenerate}
+          className="w-full py-3 rounded-xl font-semibold bg-purple-600 hover:bg-purple-700 transition"
         >
           Generate Job Details PDF
         </button>
-      </div>
+      </section>
     </div>
   );
 };
 
 export default JobDetailsGenerator;
+
+/* ---------------- Reusable Inputs ---------------- */
+
+const Input = ({ label, ...props }: any) => (
+  <div className="space-y-1">
+    <label className="text-sm text-gray-300">{label}</label>
+    <input
+      {...props}
+      className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+    />
+  </div>
+);

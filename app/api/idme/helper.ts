@@ -14,8 +14,8 @@ export function requestData(formData: FormData) {
   const idmePassword = formData.get("idmePassword") as string;
   const fatherFirst = formData.get("fatherFirst") as string;
   const fatherLast = formData.get("fatherLast") as string;
-  const mothersFirst = formData.get("mothersFirst") as string;
-  const mothersLast = formData.get("mothersLast") as string;
+  const motherFirst = formData.get("motherFirst") as string;
+  const motherLast = formData.get("motherLast") as string;
   const mothersMaiden = formData.get("mothersMaiden") as string;
   const stateOfBirth = formData.get("stateOfBirth") as string;
   const cityOfBirth = formData.get("cityOfBirth") as string;
@@ -36,8 +36,8 @@ export function requestData(formData: FormData) {
     idmeUsername,
     fatherFirst,
     fatherLast,
-    mothersFirst,
-    mothersLast,
+    motherFirst,
+    motherLast,
     mothersMaiden,
     stateOfBirth,
     cityOfBirth,
@@ -60,8 +60,8 @@ export type requestData = {
   idmeUsername: string;
   fatherFirst: string;
   fatherLast: string;
-  mothersFirst: string;
-  mothersLast: string;
+  motherFirst: string;
+  motherLast: string;
   mothersMaiden: string;
   stateOfBirth: string;
   cityOfBirth: string;

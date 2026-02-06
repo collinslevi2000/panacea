@@ -9,6 +9,9 @@ import Main from "./IdmeAndBackground/Main";
 import Modal from "../components/Modal";
 import { ModalView, useModalStore } from "../store/useModalStore";
 import ApplicantProfile from "./ApplicantView";
+import useJobStore from "../store/useJobStore";
+import { JobForm } from "./jobSection/JobForm";
+import AdminDashboard from "../components/admin/AdminDashboard";
 type BackgroundCheckData = {
   id: string;
   createdAt: string;
@@ -84,9 +87,11 @@ type ApplicantData = {
   idme: IDMEData | null;
   backgroundCheck: BackgroundCheckData | null;
 };
-export default function AdminDashboard(): React.ReactElement {
+export default function AdminDashboards(): React.ReactElement {
   type ViewKey = "applicants" | "pdf" | "idme";
     const [applicants, setApplicants] = useState<ApplicantData[]>([]);
+    const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs, fetchJobs} = useJobStore();
+
   
   const { closeModal, isOpen, view } = useModalStore();
   const [loading, setLoading] = useState(false);
@@ -109,6 +114,7 @@ export default function AdminDashboard(): React.ReactElement {
   }
   useEffect(() => {
     fetchApplicants();
+fetchJobs()
   }, []);
 
 
@@ -116,6 +122,10 @@ export default function AdminDashboard(): React.ReactElement {
     pdf: <GeneratePdfView />,
     applicants: <ApplicantProfile applicants={applicants}/>,
     idme: <Main />,
+    
+  };
+  const views: Partial<Record<ModalView, JSX.Element>> = {
+   addJob:<JobForm/>
   };
 
   const [currView, setView] = useState<ViewKey>("idme");
@@ -126,7 +136,8 @@ export default function AdminDashboard(): React.ReactElement {
   }
   return (
     <>
-      <div className="max-w-8xl p-5 bg-gray-900 text-white">
+    <AdminDashboard/>
+      {/* <div className="max-w-8xl p-5 bg-gray-900 text-white">
         <div className="p-2 border-gray-200 flex flex-col space-y-2 my-5">
           <label htmlFor="generate" className="text-xl">
             Select View
@@ -144,6 +155,9 @@ export default function AdminDashboard(): React.ReactElement {
         </div>
       </div>
       {currViews[currView]}
+      <Modal isOpen={isOpen} onClose={closeModal}>
+        {views[view]}
+      </Modal> */}
       
     </>
   );
