@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import jsPDF from "jspdf";
+
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CustomDatePicker from "@/app/components/CustomDatePicker";
 import { generatePDF } from "./agreementGen";
 import { useModalStore } from "@/app/store/useModalStore";
@@ -15,239 +16,229 @@ export interface AgreementData {
   startDate: string;
   hourlyRate: string;
   jobType: string;
-  HeadOfHr:string
-
-  
+  HeadOfHr: string;
 }
 
-const AgreementGenerator: React.FC = () => {
-    const {openModal,isOpen} = useModalStore()
-    const { addJob, updateJob, setSelectedJob,selectedJob, isSubmitting, error: storeError ,jobs} = useJobStore();
+const today = () => new Date().toISOString().split("T")[0];
 
-    
-  
+const AgreementGenerator: React.FC = () => {
+  const { openModal } = useModalStore();
+  const { jobs, setSelectedJob, selectedJob } = useJobStore();
+
   const [agreementData, setAgreementData] = useState<AgreementData>({
     employeeName: "",
-    date: new Date().toISOString().split("T")[0],
+    date: today(),
     logoUrl: "/logo.jpg",
-    position: "Data entry clerk",
-    startDate: new Date().toISOString().split("T")[0],
+    position: "",
+    startDate: today(),
     hourlyRate: "29.90",
     jobType: "",
-    HeadOfHr:"Brian McDaniel"
-  
+    HeadOfHr: "Brian McDaniel",
   });
-  
-  
-  const handleJobInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-   const currentJob =  jobs.find((j)=> j.title === value)
-   if(!currentJob)return
-   setSelectedJob(currentJob)
-    
-   setAgreementData((prev) => ({
-      ...prev,
-      [name]: value,
-      responsibilities:currentJob.responsibilities,
-      qualifications:currentJob.qualifications
-    }));
+
+  /* ---------------- State Helpers ---------------- */
+
+  const updateField = (name: keyof AgreementData, value: any) => {
+    setAgreementData((prev) => ({ ...prev, [name]: value }));
   };
-  function handleAddJob(){
-    openModal("addJob")
-  }
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setAgreementData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    updateField(e.target.name as keyof AgreementData, e.target.value);
   };
 
-  // Function to add professional footer vectors
+  const handleJobInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    const job = jobs.find((j) => j.title === value);
+    if (!job) return;
+
+    setSelectedJob(job);
+
+    setAgreementData((prev) => ({
+      ...prev,
+      position: job.title,
+    }));
+  };
 
   const handleDateChange = (date: Date | null, name: string) => {
-    if (!date) return;
+    if (!date) return updateField(name as keyof AgreementData, "");
 
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    const formatted = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-    const formattedDate = `${year}-${month.toString().padStart(2, "0")}-${day
-      .toString()
-      .padStart(2, "0")}`;
-
-    setAgreementData((prev) => ({
-      ...prev,
-      [name]: formattedDate,
-    }));
+    updateField(name as keyof AgreementData, formatted);
   };
 
-  // const formatDateForPDF = (dateString: string): string => {
-  //   if (!dateString || dateString.length !== 10) return "Invalid Date";
+  const validate = () => {
+    if (!agreementData.employeeName) return "Employee name required";
+    if (!agreementData.jobType) return "Job type required";
+    if (!agreementData.HeadOfHr) return "Head of HR required";
+    if (!agreementData.position) return "Job position required";
+    return null;
+  };
 
-  //   const [year, month, day] = dateString.split("-").map(Number);
-  //   const monthNames = [
-  //     "January",
-  //     "February",
-  //     "March",
-  //     "April",
-  //     "May",
-  //     "June",
-  //     "July",
-  //     "August",
-  //     "September",
-  //     "October",
-  //     "November",
-  //     "December",
-  //   ];
+  const handleGenerate = () => {
+    const error = validate();
+    if (error) return alert(error);
+    generatePDF(agreementData);
+  };
 
-  //   if (month < 1 || month > 12 || day < 1 || day > 31) {
-  //     return "Invalid Date";
-  //   }
-
-  //   return `${monthNames[month - 1]} ${day}, ${year}`;
-  // };
-
-  useEffect(() => {
-    console.log("agreementData updated:", agreementData);
-  }, [agreementData]);
+  /* ---------------- UI ---------------- */
 
   return (
-    <div className="container mx-auto  max-w-2xl mt-2">
-      <h1 className="text-2xl font-bold mb-6 text-center">
-        Appointment Agreement Generator
-      </h1>
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold">
+          Appointment Agreement Generator
+        </h1>
+        <p className="text-sm text-gray-400">
+          Fill the agreement details and generate a professional appointment
+          agreement PDF.
+        </p>
+      </header>
 
-      <div className="bg-black p-6 rounded-lg shadow-md border">
-        <h2 className="text-xl font-semibold mb-4">Customize Agreement</h2>
+      <section className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-6 shadow-lg">
+        {/* Employee + HR */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Input
+            label="Employee Name"
+            name="employeeName"
+            value={agreementData.employeeName}
+            onChange={handleInputChange}
+          />
 
-        <div className="space-y-4">
-          <div className="flex flex-row space-x-5 items-center justify-between">
-            <div>
-
-            <label className="block text-sm font-medium mb-2">
-              Employee Name
-            </label>
-            <input
-              type="text"
-              name="employeeName"
-              value={agreementData.employeeName}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg text-black"
-              placeholder="Enter employee name"
-            />
-            </div>
-            <div>
-
-            <label className="block text-sm font-medium mb-2">
-              Head Of Hr Name
-            </label>
-            <input
-              type="text"
-              name="HeadOfHr"
-              value={agreementData.HeadOfHr}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg text-black"
-              placeholder="Enter HR Head name"
-            />
-            </div>
-          </div>
-          <div className="flex md:flex-row  justify-between">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Agreement Date
-              </label>
-              <CustomDatePicker
-                name="date"
-                value={agreementData.date}
-                onChange={handleDateChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Start Date
-              </label>
-              <CustomDatePicker
-                name="startDate"
-                value={agreementData.startDate}
-                onChange={handleDateChange}
-              />
-            </div>
-          </div>
-          <div className="flex items-center flex-row justify-between">
-           
-            <div>
-              <label className="block text-sm font-medium mb-2">Job Type</label>
-              <select
-                className="w-full p-3 border rounded-lg bg-gray-900 "
-                name="jobType"
-                onChange={handleInputChange}
-              >
-                <option value="">Select Job Type</option>
-                <option value="full-time">Full Time</option>
-                <option value="part-time">Part Time</option>
-              </select>
-            </div>
-            <div>
-            <label className="block text-sm font-medium mb-2">
-              Hourly Rate ($)
-            </label>
-            <input
-              type="text"
-              name="hourlyRate"
-              value={agreementData.hourlyRate}
-              onChange={handleInputChange}
-              className="w-full p-3 border rounded-lg text-black"
-              placeholder="29.90"
-            />
-          </div>
-          </div>
-
-      
+          <Input
+            label="Head of HR"
+            name="HeadOfHr"
+            value={agreementData.HeadOfHr}
+            onChange={handleInputChange}
+          />
         </div>
-        <div className="mt-5 borer rounded-lg border-gray-500 p-3 my-5">
-                  
-                  <div className="my-3">
-                      <label className= " flex items-center flex-row justify-between text-sm font-medium mb-2">
-                        <div>
-                        Job Position
-                        </div>
-                        <button onClick={handleAddJob} type="button" className="bg-gray-500 p-2 rounded-lg hover:bg-gray-800 hover:text-gray-100 transition-all duration-500">
-                       + Add Position
-                        </button>
-                        </label>
-                      <select
-                        className="w-full p-3 border rounded-lg bg-gray-900 "
-                        name="position"
-                        onChange={handleJobInputChange}
-                      >
-                        <option value="">Select Position</option>
-                       {jobs.map((jj,idx)=>(<option value={jj.title} key={idx}>{jj.title}</option>))}
-                      </select>
-                    </div>
-        
-                   {selectedJob && <div>
-                   <JobDetail/>
-                    </div>}
-        
-                </div>
 
+        {/* Dates */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <DateField
+            label="Agreement Date"
+            name="date"
+            value={agreementData.date}
+            onChange={handleDateChange}
+          />
+
+          <DateField
+            label="Start Date"
+            name="startDate"
+            value={agreementData.startDate}
+            onChange={handleDateChange}
+          />
+        </div>
+
+        {/* Job Info */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            label="Job Type"
+            name="jobType"
+            value={agreementData.jobType}
+            onChange={handleInputChange}
+            options={[
+              { label: "Select Job Type", value: "" },
+              { label: "Full Time", value: "full-time" },
+              { label: "Part Time", value: "part-time" },
+            ]}
+          />
+
+          <Input
+            label="Hourly Rate"
+            name="hourlyRate"
+            value={agreementData.hourlyRate}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        {/* Job Position */}
+        <div className="space-y-3 border border-gray-800 rounded-xl p-4">
+          <div className="flex justify-between items-center">
+            <h3 className="font-medium">Job Position</h3>
+            <button
+              onClick={() => openModal("addJob")}
+              className="text-sm px-3 py-1.5 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+            >
+              + Add Position
+            </button>
+          </div>
+
+          <select
+            className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700"
+            value={agreementData.position}
+            onChange={handleJobInputChange}
+          >
+            <option value="">Select Position</option>
+            {jobs.map((j, i) => (
+              <option key={i} value={j.title}>
+                {j.title}
+              </option>
+            ))}
+          </select>
+
+          <AnimatePresence>
+            {selectedJob && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <JobDetail />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Action */}
         <button
-          onClick={() => generatePDF(agreementData)}
-          className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold mt-6"
+          onClick={handleGenerate}
+          className="w-full py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 transition"
         >
           Generate Appointment Agreement PDF
         </button>
-      </div>
+      </section>
     </div>
   );
 };
 
 export default AgreementGenerator;
+
+/* ---------------- Reusable Inputs ---------------- */
+
+const Input = ({ label, ...props }: any) => (
+  <div className="space-y-1">
+    <label className="text-sm text-gray-300">{label}</label>
+    <input
+      {...props}
+      className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+    />
+  </div>
+);
+
+const Select = ({ label, options, ...props }: any) => (
+  <div className="space-y-1">
+    <label className="text-sm text-gray-300">{label}</label>
+    <select
+      {...props}
+      className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700"
+    >
+      {options.map((o: any, i: number) => (
+        <option key={i} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+const DateField = ({ label, name, value, onChange }: any) => (
+  <div className="space-y-1">
+    <label className="text-sm text-gray-300">{label}</label>
+    <CustomDatePicker name={name} value={value} onChange={onChange} />
+  </div>
+);

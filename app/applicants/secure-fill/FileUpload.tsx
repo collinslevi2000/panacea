@@ -1,5 +1,5 @@
 // app/components/FileUpload.tsx
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 
 interface FileUploadProps {
   label: string;
@@ -10,7 +10,6 @@ interface FileUploadProps {
   error?: string;
   helpText?: string;
   maxSizeMB?: number;
-  currentFile?: File | null;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -22,17 +21,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
   error,
   helpText,
   maxSizeMB = 5,
-  currentFile,
 }) => {
-  const [fileName, setFileName] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (currentFile) {
-      setFileName(currentFile.name);
-    } else {
-      setFileName(null);
-    }
-  }, [currentFile]);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -46,7 +37,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
       }
       
       setFileName(file.name);
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setPreview(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setPreview(null);
+      }
     } else {
+      setPreview(null);
       setFileName(null);
     }
     
@@ -54,6 +57,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const handleRemove = () => {
+    setPreview(null);
     setFileName(null);
     onChange(null);
   };
@@ -68,10 +72,46 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <div className="mb-4">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
+      
+      {preview ? (
+        <div className="mb-3">
+          <div className="relative group">
+            <img 
+              src={preview} 
+              alt="Preview" 
+              className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+            />
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+            >
+              <i className="fas fa-times text-sm"></i>
+            </button>
+          </div>
+          <p className="mt-1 text-sm text-gray-600">{fileName}</p>
+        </div>
+      ) : fileName ? (
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-300 mb-3">
+          <div className="flex items-center">
+            <i className={`${getFileIcon()} text-gray-500 text-xl mr-3`}></i>
+            <div>
+              <p className="font-medium text-gray-900">{fileName}</p>
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="text-sm text-red-600 hover:text-red-800 mt-1"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       
       <div className={`
         relative border-2 border-dashed rounded-lg p-6 text-center
@@ -82,7 +122,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
         transition-colors cursor-pointer
       `}>
         <input
-          id={name}
           type="file"
           name={name}
           onChange={handleFileChange}
@@ -92,7 +131,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         
         <div className="space-y-2">
           <div className="w-12 h-12 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
-            <i className={getFileIcon()}></i>
+            <i className="fas fa-cloud-upload-alt text-gray-500 text-xl"></i>
           </div>
           <div>
             <p className="text-sm text-gray-700">
@@ -108,19 +147,6 @@ const FileUpload: React.FC<FileUploadProps> = ({
           </div>
         </div>
       </div>
-      
-      {fileName && (
-        <div className="mt-2 flex items-center justify-between p-2 bg-gray-100 rounded">
-          <span className="text-sm text-gray-700 truncate">{fileName}</span>
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="text-red-600 hover:text-red-800"
-          >
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
-      )}
       
       {error && (
         <p className="mt-1 text-sm text-red-600 flex items-center">

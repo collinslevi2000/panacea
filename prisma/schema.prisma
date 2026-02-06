@@ -39,7 +39,7 @@ model Idme {
 
   firstName     String
   lastName      String
-  otherNames    String
+  otherNames    String?
   address       String
   city          String
   state         String

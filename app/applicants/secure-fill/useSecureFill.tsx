@@ -26,8 +26,8 @@ export type FormState = {
   fatherLast: string;
 
   mothersMaiden: string;
-  mothersFirst: string;
-  mothersLast: string;
+  motherFirst: string;
+  motherLast: string;
 
   stateOfBirth: string;
   cityOfBirth: string;
@@ -51,8 +51,8 @@ export const initialFormState: FormState = {
 
   fatherFirst: "",
   fatherLast: "",
-  mothersFirst: "",
-  mothersLast: "",
+  motherFirst: "",
+  motherLast: "",
   mothersMaiden: "",
   stateOfBirth: "",
   cityOfBirth: "",
@@ -98,10 +98,10 @@ export function useSecureFill() {
       e.fatherLast = "Father's Last Name is required";
     if (!form.mothersMaiden.trim())
       e.mothersMaiden = "Mothers's Maiden Name is required";
-    if (!form.mothersFirst.trim())
-      e.mothersFirst = "Mother's Last Name is required";
-    if (!form.mothersLast.trim())
-      e.mothersLast = "Mother's Last name is required";
+    if (!form.motherFirst.trim())
+      e.motherFirst = "Mother's Last Name is required";
+    if (!form.motherLast.trim())
+      e.motherLast = "Mother's Last name is required";
     if (!form.address.trim()) e.address = "Address is required";
     if (!form.dob.trim()) e.dob = "Date of Birth is required";
     if (!form.stateOfBirth.trim())
