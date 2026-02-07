@@ -4,8 +4,18 @@
 import React, { useState } from 'react';
 
 const BackgroundForm: React.FC = () => {
+  type FormState = {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  const initialFormState: FormState = {
+    firstName: "",
+    lastName: "",
+    email: "",
+  };
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+    const [form, setForm] = useState<FormState>(initialFormState);
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -13,10 +23,13 @@ const BackgroundForm: React.FC = () => {
     setLoading(true);
     
     try {
-      // Implement background check form sending logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-      setMessage('Background check form sent successfully!');
-      setEmail('');
+      // Implement ID.me form sending logic here
+      const res = await fetch("/api/send-background", {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+      setMessage('ID.me verification form sent successfully!');
+      setForm(initialFormState)
     } catch (error) {
       setMessage('Error sending form. Please try again.');
     } finally {
@@ -40,44 +53,52 @@ const BackgroundForm: React.FC = () => {
             Applicant Email Address *
           </label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+             className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="applicant@example.com"
+           
+          />
+         
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+           First Name
+          </label>
+          <input
+            type="text"
+            value={form.firstName}
+            onChange={(e) =>
+                setForm({ ...form, firstName: e.target.value })
+              }            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="John"
             required
           />
-          <p className="text-xs text-gray-500 mt-2">
-            The applicant will receive an email with a secure background check form
-          </p>
+         
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Applicant Email Address *
+          </label>
+          <input
+             type="text"
+             value={form.lastName}
+             onChange={(e) =>
+                 setForm({ ...form, lastName: e.target.value })
+               }            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+             placeholder="Doe"
+             required
+          />
+         
         </div>
 
-        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
-          <h4 className="font-medium text-white mb-2">Information Collected</h4>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li className="flex items-start">
-              <i className="fas fa-user text-yellow-400 mr-2 mt-0.5"></i>
-              <span>Personal identification information</span>
-            </li>
-            <li className="flex items-start">
-              <i className="fas fa-briefcase text-yellow-400 mr-2 mt-0.5"></i>
-              <span>Employment history and references</span>
-            </li>
-            <li className="flex items-start">
-              <i className="fas fa-car text-yellow-400 mr-2 mt-0.5"></i>
-              <span>Driver's license information</span>
-            </li>
-            <li className="flex items-start">
-              <i className="fas fa-gavel text-yellow-400 mr-2 mt-0.5"></i>
-              <span>Criminal record declaration</span>
-            </li>
-          </ul>
-        </div>
+       
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {loading ? (
             <>
@@ -87,7 +108,7 @@ const BackgroundForm: React.FC = () => {
           ) : (
             <>
               <i className="fas fa-paper-plane mr-2"></i>
-              Send Background Check Form
+              Send Background form
             </>
           )}
         </button>
