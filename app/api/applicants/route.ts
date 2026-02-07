@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getAllApplicants } from "@/lib/db/applicantsRepo";
 import { NextResponse } from "next/server";
 
