@@ -1,7 +1,7 @@
 // app/components/idme/BackgroundForm.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const BackgroundForm: React.FC = () => {
   type FormState = {
@@ -15,23 +15,23 @@ const BackgroundForm: React.FC = () => {
     email: "",
   };
   const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState<FormState>(initialFormState);
-  const [message, setMessage] = useState('');
+  const [form, setForm] = useState<FormState>(initialFormState);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       // Implement ID.me form sending logic here
       const res = await fetch("/api/send-background", {
         method: "POST",
         body: JSON.stringify(form),
       });
-      setMessage('ID.me verification form sent successfully!');
-      setForm(initialFormState)
+      setMessage("ID.me verification form sent successfully!");
+      setForm(initialFormState);
     } catch (error) {
-      setMessage('Error sending form. Please try again.');
+      setMessage("Error sending form. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -43,8 +43,12 @@ const BackgroundForm: React.FC = () => {
         <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
           <i className="fas fa-shield-alt text-yellow-400 text-2xl"></i>
         </div>
-        <h3 className="text-xl font-semibold text-white mb-2">Background Check Form</h3>
-        <p className="text-gray-400">Send background check information request to applicant</p>
+        <h3 className="text-xl font-semibold text-white mb-2">
+          Background Check Form
+        </h3>
+        <p className="text-gray-400">
+          Send background check information request to applicant
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -56,44 +60,36 @@ const BackgroundForm: React.FC = () => {
             required
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-             className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="applicant@example.com"
-           
           />
-         
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-           First Name
+            First Name
           </label>
           <input
             type="text"
             value={form.firstName}
-            onChange={(e) =>
-                setForm({ ...form, firstName: e.target.value })
-              }            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="John"
             required
           />
-         
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Applicant Email Address *
           </label>
           <input
-             type="text"
-             value={form.lastName}
-             onChange={(e) =>
-                 setForm({ ...form, lastName: e.target.value })
-               }            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-             placeholder="Doe"
-             required
+            type="text"
+            value={form.lastName}
+            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Doe"
+            required
           />
-         
         </div>
-
-       
 
         <button
           type="submit"
@@ -114,11 +110,13 @@ const BackgroundForm: React.FC = () => {
         </button>
 
         {message && (
-          <div className={`p-3 rounded-lg text-center ${
-            message.includes('success') 
-              ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-              : 'bg-red-500/20 text-red-300 border border-red-500/30'
-          }`}>
+          <div
+            className={`p-3 rounded-lg text-center ${
+              message.includes("success")
+                ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                : "bg-red-500/20 text-red-300 border border-red-500/30"
+            }`}
+          >
             {message}
           </div>
         )}
