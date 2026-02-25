@@ -30,7 +30,7 @@ const Background: FC<BackgroundProps> = ({}) => {
       });
       await new Promise((res) => setTimeout(res, 2000));
       const data = await res.json();
-      setForm(initialFormState)
+      setForm(initialFormState);
     } catch (err: any) {
       setbackgroundLoading(false);
     } finally {
@@ -91,7 +91,7 @@ const Background: FC<BackgroundProps> = ({}) => {
           <button
             onClick={sendIdme}
             type="button"
-            disabled={backgroundLoading} // <-- disables the button while loading
+            disabled={backgroundLoading}
             className={`px-3 py-1 my-3 border bg-gray-200 rounded-3xl text-black
         transition-all duration-500
         hover:bg-black hover:text-gray-200

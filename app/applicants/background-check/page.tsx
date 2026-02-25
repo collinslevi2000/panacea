@@ -62,12 +62,12 @@ const validationRules: Record<keyof FormState, ValidationConfig> = {
   },
   phone: {
     required: true,
-    minLength: 10,
+    // minLength: 10,
     message: "Valid phone number required",
   },
   ssn: {
     required: true,
-    pattern: /^\d{9}$/,
+    // pattern: /^\d{9}$/,
     message: "Invalid SSN (9 digits required)",
   },
   dob: { required: true, message: "Date of birth is required" },
