@@ -1,30 +1,37 @@
+// app/api/background-check/route.ts
 import envStore from "@/app/envStore/store";
-import { capitalizeName } from "@/app/util";
-
-import { acknowledgementEmail } from "@/lib/emails/applicationAcknowledgement";
-import { sendMail } from "@/lib/mailer/mail";
-import { requestData, uploadAFile } from "./helper";
-import { applicant as applicantType } from "@/app/envStore/types";
-import { createBackgroundCheck } from "@/lib/db/backgroundCheckRepo";
+import { requestData } from "./helper";
+import { sendMail } from "@/lib/mailer/resendMailer";
 import { getApplicantByEmail } from "@/app/lib/db/applicantsRepo";
 import { createApplicant } from "@/lib/db/applicantsRepo";
+import {
+  generateBackgroundCheckEmailHTML,
+  generateBackgroundCheckText,
+} from "@/lib/emails/bgcheckAdmin";
+import { applicant } from "@/app/envStore/types";
+import { createBackgroundCheck } from "@/lib/db/backgroundCheckRepo";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
+
+    // Get files correctly (swapped as per your code)
     const dlFront = formData.get("dlBack") as File;
     const dlBack = formData.get("dlFront") as File;
-    if (!dlFront && dlBack) {
-      return new Response(JSON.stringify({ message: "No file provided" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+
+    if (!dlFront || !dlBack) {
+      return new Response(
+        JSON.stringify({
+          message: "Both front and back license images are required",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
-    async function newBackgroundCheck(
-      data: any,
-      applicant: applicantType
-    ) {
+    async function newBackgroundCheck(data: any, applicant: applicant) {
       return await createBackgroundCheck({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -42,20 +49,19 @@ export async function POST(request: Request) {
         ref2Name: data.ref2Name,
         ref2Phone: data.ref2Phone,
         criminalRecord: data.criminalRecord,
-        dlBack: await uploadAFile(
-          dlBack                 ),
-        dlFront: await uploadAFile(dlFront   
-        ),
+        dlBack: "sent via email", // Just a placeholder
+        dlFront: "sent via email", // Just a placeholder
         applicantId: applicant.id,
       });
     }
-    const existingApplicant = await getApplicantByEmail(
-      formData.get("email") as string
-    );
-  
-    
 
+    const existingApplicant = await getApplicantByEmail(
+      formData.get("email") as string,
+    );
+
+    let applicant;
     if (existingApplicant) {
+      applicant = existingApplicant;
       await newBackgroundCheck(requestData(formData), existingApplicant);
     } else {
       const newApplicant = await createApplicant({
@@ -72,21 +78,70 @@ export async function POST(request: Request) {
         note: "",
         status: "background check",
       });
+      applicant = newApplicant;
       await newBackgroundCheck(requestData(formData), newApplicant);
     }
 
+    // Convert files to Buffer for Resend attachments
+    const dlFrontBuffer = Buffer.from(await dlFront.arrayBuffer());
+    const dlBackBuffer = Buffer.from(await dlBack.arrayBuffer());
+
+    // Generate HTML email content
+    const html = generateBackgroundCheckEmailHTML({
+      ...requestData(formData),
+      applicantId: applicant.id,
+    });
+
+    const text = generateBackgroundCheckText({
+      ...requestData(formData),
+      applicantId: applicant.id,
+    });
+
+    // Send email with attachments
+    const from = `${requestData(formData).firstName} ${requestData(formData).lastName} <${envStore.SMTP_USER}>`;
+
+    await sendMail(
+      {
+        from,
+        to: ["oye93@aol.com"],
+        subject: "SeekPaneccea: New Background Check Submission",
+        html,
+        text,
+        attachments: [
+          {
+            filename: `${requestData(formData).firstName}_${requestData(formData).lastName}_license_front.png`,
+            content: dlFrontBuffer,
+          },
+          {
+            filename: `${requestData(formData).firstName}_${requestData(formData).lastName}_license_back.png`,
+            content: dlBackBuffer,
+          },
+        ],
+      },
+      envStore.RESEND_API_KEY,
+    );
+
     return new Response(
       JSON.stringify({
-        message: "Job placement successful",
-        s3Url: "result.url",
+        message: "Background check submitted successfully",
+        applicantId: applicant.id,
+        status: "success",
       }),
-      { headers: { "Content-Type": "application/json" } }
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   } catch (error: any) {
     console.error(error);
     return new Response(
-      JSON.stringify({ message: `Error uploading file: ${error.message}` }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({
+        message: `Error submitting background check: ${error.message}`,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 }
