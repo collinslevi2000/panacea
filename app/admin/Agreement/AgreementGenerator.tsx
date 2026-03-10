@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomDatePicker from "@/app/components/CustomDatePicker";
 import { generatePDF } from "./agreementGen";
@@ -17,6 +17,7 @@ export interface AgreementData {
   hourlyRate: string;
   jobType: string;
   HeadOfHr: string;
+  numOfHours: number; // Added hours field
 }
 
 const today = () => new Date().toISOString().split("T")[0];
@@ -34,7 +35,25 @@ const AgreementGenerator: React.FC = () => {
     hourlyRate: "29.90",
     jobType: "",
     HeadOfHr: "Brian McDaniel",
+    numOfHours: 20, // Default value
   });
+
+  const [isHoursDisabled, setIsHoursDisabled] = useState(false);
+
+  /* ---------------- Effects ---------------- */
+
+  // Effect to update numOfHours when jobType changes
+  useEffect(() => {
+    if (agreementData.jobType === "full-time") {
+      setAgreementData((prev) => ({ ...prev, numOfHours: 40 }));
+      setIsHoursDisabled(true);
+    } else if (agreementData.jobType === "part-time") {
+      setAgreementData((prev) => ({ ...prev, numOfHours: 20 }));
+      setIsHoursDisabled(true);
+    } else {
+      setIsHoursDisabled(false);
+    }
+  }, [agreementData.jobType]);
 
   /* ---------------- State Helpers ---------------- */
 
@@ -43,7 +62,7 @@ const AgreementGenerator: React.FC = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     updateField(e.target.name as keyof AgreementData, e.target.value);
   };
@@ -65,7 +84,7 @@ const AgreementGenerator: React.FC = () => {
     if (!date) return updateField(name as keyof AgreementData, "");
 
     const formatted = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
+      date.getMonth() + 1,
     ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
     updateField(name as keyof AgreementData, formatted);
@@ -74,6 +93,7 @@ const AgreementGenerator: React.FC = () => {
   const validate = () => {
     if (!agreementData.employeeName) return "Employee name required";
     if (!agreementData.jobType) return "Job type required";
+    if (!agreementData.numOfHours) return "Number of hours required";
     if (!agreementData.HeadOfHr) return "Head of HR required";
     if (!agreementData.position) return "Job position required";
     return null;
@@ -134,8 +154,8 @@ const AgreementGenerator: React.FC = () => {
           />
         </div>
 
-        {/* Job Info */}
-        <div className="grid md:grid-cols-2 gap-4">
+        {/* Job Info - Now with 3 columns to accommodate hours */}
+        <div className="grid md:grid-cols-3 gap-4">
           <Select
             label="Job Type"
             name="jobType"
@@ -143,14 +163,26 @@ const AgreementGenerator: React.FC = () => {
             onChange={handleInputChange}
             options={[
               { label: "Select Job Type", value: "" },
-              { label: "Full Time", value: "full-time" },
-              { label: "Part Time", value: "part-time" },
+              { label: "Full Time (40 hours/week)", value: "full-time" },
+              { label: "Part Time (20 hours/week)", value: "part-time" },
             ]}
           />
 
           <Input
-            label="Hourly Rate"
+            label="Weekly Hours"
+            name="numOfHours"
+            type="number"
+            value={agreementData.numOfHours}
+            onChange={handleInputChange}
+            disabled={isHoursDisabled}
+            className={isHoursDisabled ? "bg-gray-700 cursor-not-allowed" : ""}
+          />
+
+          <Input
+            label="Hourly Rate ($)"
             name="hourlyRate"
+            type="number"
+            step="0.01"
             value={agreementData.hourlyRate}
             onChange={handleInputChange}
           />
@@ -194,6 +226,31 @@ const AgreementGenerator: React.FC = () => {
           </AnimatePresence>
         </div>
 
+        {/* Weekly Hours Summary */}
+        {agreementData.jobType && (
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
+            <p className="text-sm text-gray-300">
+              <span className="font-medium">Weekly Commitment: </span>
+              {agreementData.numOfHours} hours/week @ $
+              {agreementData.hourlyRate}/hour =
+              <span className="text-green-400 font-medium">
+                {" "}
+                $
+                {(
+                  parseFloat(agreementData.hourlyRate) *
+                  agreementData.numOfHours
+                ).toFixed(2)}
+                /week
+              </span>
+              {agreementData.jobType === "full-time"
+                ? " (Full Time - Fixed)"
+                : agreementData.jobType === "part-time"
+                  ? " (Part Time - Fixed)"
+                  : ""}
+            </p>
+          </div>
+        )}
+
         {/* Action */}
         <button
           onClick={handleGenerate}
@@ -210,12 +267,15 @@ export default AgreementGenerator;
 
 /* ---------------- Reusable Inputs ---------------- */
 
-const Input = ({ label, ...props }: any) => (
+const Input = ({ label, disabled, className = "", ...props }: any) => (
   <div className="space-y-1">
     <label className="text-sm text-gray-300">{label}</label>
     <input
       {...props}
-      className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+      disabled={disabled}
+      className={`w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 ${className} ${
+        disabled ? "opacity-60 cursor-not-allowed" : ""
+      }`}
     />
   </div>
 );

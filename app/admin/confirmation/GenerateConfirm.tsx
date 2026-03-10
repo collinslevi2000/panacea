@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CustomDatePicker from "@/app/components/CustomDatePicker";
 import { generatePDF } from "./confirmGenerator";
@@ -15,6 +15,7 @@ export interface ConfirmationData {
   position: string;
   startDate: string;
   hourlyRate: string;
+  numOfHours: number;
   supervisorName: string;
   trainingDate: string;
   fullAddress: string;
@@ -44,23 +45,38 @@ const ConfirmationLetterGenerator: React.FC = () => {
     email: "",
     jobType: "",
     responsibilities: selectedJob?.responsibilities || [],
+    numOfHours: 20,
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isHoursDisabled, setIsHoursDisabled] = useState(false);
+
+  // Effect to update numOfHours when jobType changes
+  useEffect(() => {
+    if (confirmationData.jobType === "full-time") {
+      setConfirmationData((prev) => ({ ...prev, numOfHours: 40 }));
+      setIsHoursDisabled(true);
+    } else if (confirmationData.jobType === "part-time") {
+      setConfirmationData((prev) => ({ ...prev, numOfHours: 20 }));
+      setIsHoursDisabled(true);
+    } else {
+      setIsHoursDisabled(false);
+    }
+  }, [confirmationData.jobType]);
 
   const updateField = (name: keyof ConfirmationData, value: any) => {
     setConfirmationData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     updateField(e.target.name as keyof ConfirmationData, e.target.value);
   };
 
-  const handleJobInputChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleJobInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     const job = jobs.find((j) => j.title === value);
     if (!job) return;
@@ -91,7 +107,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
     if (!date) return updateField(name as keyof ConfirmationData, "");
 
     const formatted = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
+      date.getMonth() + 1,
     ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
     updateField(name as keyof ConfirmationData, formatted);
@@ -100,6 +116,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
   const validate = () => {
     if (!confirmationData.employeeName) return "Employee name required";
     if (!confirmationData.jobType) return "Job type required";
+    if (!confirmationData.numOfHours) return "Number of hours required";
     if (!confirmationData.supervisorName) return "Supervisor name required";
     if (!selectedJob) return "Please select job position";
     return null;
@@ -114,9 +131,12 @@ const ConfirmationLetterGenerator: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold">Confirmation Letter Generator</h1>
+        <h1 className="text-3xl font-semibold">
+          Confirmation Letter Generator
+        </h1>
         <p className="text-sm text-gray-400">
-          Fill the employee and job details to generate a professional confirmation PDF.
+          Fill the employee and job details to generate a professional
+          confirmation PDF.
         </p>
       </header>
 
@@ -137,19 +157,28 @@ const ConfirmationLetterGenerator: React.FC = () => {
             onChange={handleInputChange}
             options={[
               { label: "Select Job Type", value: "" },
-              { label: "Full Time", value: "full-time" },
-              { label: "Part Time", value: "part-time" },
+              { label: "Full Time (40 hours/week)", value: "full-time" },
+              { label: "Part Time (20 hours/week)", value: "part-time" },
             ]}
           />
         </div>
 
         {/* Dates */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <DateField
             label="Letter Date"
             name="date"
             value={confirmationData.date}
             onChange={handleDateChange}
+          />
+          <Input
+            label="Job Hours"
+            name="numOfHours"
+            type="number"
+            value={confirmationData.numOfHours}
+            onChange={handleInputChange}
+            disabled={isHoursDisabled}
+            className={isHoursDisabled ? "bg-gray-700 cursor-not-allowed" : ""}
           />
           <DateField
             label="Training Date"
@@ -162,8 +191,10 @@ const ConfirmationLetterGenerator: React.FC = () => {
         {/* Job Info */}
         <div className="grid md:grid-cols-2 gap-4">
           <Input
-            label="Hourly Rate"
+            label="Hourly Rate ($)"
             name="hourlyRate"
+            type="number"
+            step="0.01"
             value={confirmationData.hourlyRate}
             onChange={handleInputChange}
           />
@@ -214,6 +245,21 @@ const ConfirmationLetterGenerator: React.FC = () => {
           </AnimatePresence>
         </div>
 
+        {/* Weekly Hours Summary */}
+        {confirmationData.jobType && (
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
+            <p className="text-sm text-gray-300">
+              <span className="font-medium">Weekly Hours: </span>
+              {confirmationData.numOfHours} hours/week
+              {confirmationData.jobType === "full-time"
+                ? " (Full Time - Fixed)"
+                : confirmationData.jobType === "part-time"
+                  ? " (Part Time - Fixed)"
+                  : ""}
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
         <button
           onClick={handleGenerate}
@@ -230,12 +276,15 @@ export default ConfirmationLetterGenerator;
 
 /* ---------------- Reusable Inputs ---------------- */
 
-const Input = ({ label, ...props }: any) => (
+const Input = ({ label, disabled, className = "", ...props }: any) => (
   <div className="space-y-1">
     <label className="text-sm text-gray-300">{label}</label>
     <input
       {...props}
-      className="w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+      disabled={disabled}
+      className={`w-full p-3 rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 ${className} ${
+        disabled ? "opacity-60 cursor-not-allowed" : ""
+      }`}
     />
   </div>
 );
@@ -258,7 +307,7 @@ const Select = ({ label, options, ...props }: any) => (
 
 const DateField = ({ label, name, value, onChange }: any) => (
   <div className="space-y-1">
-    <label className="text-sm text-gray-300">{label}</label>
+    <label className="text-sm text-gray-200">{label}</label>
     <CustomDatePicker name={name} value={value} onChange={onChange} />
   </div>
 );
