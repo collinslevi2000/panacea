@@ -11,39 +11,39 @@ import { AgreementData } from "@/app/admin/Agreement/AgreementGenerator";
 const AgreementGenerator: React.FC = () => {
   const { openModal } = useModalStore();
   const { jobs, selectedJob, setSelectedJob } = useJobStore();
-  
 
+  const [agreementData, setAgreementData] = useState<AgreementData>({
+    employeeName: "",
+    date: new Date().toISOString().split("T")[0],
+    logoUrl: "/logo.jpg",
+    position: "Data entry clerk",
+    startDate: new Date().toISOString().split("T")[0],
+    hourlyRate: "29.90",
+    jobType: "",
+    HeadOfHr: "Brian McDaniel",
+    numOfHours: 20,
+  });
 
-    const [agreementData, setAgreementData] = useState<AgreementData>({
-      employeeName: "",
-      date: new Date().toISOString().split("T")[0],
-      logoUrl: "/logo.jpg",
-      position: "Data entry clerk",
-      startDate: new Date().toISOString().split("T")[0],
-      hourlyRate: "29.90",
-      jobType: "",
-      HeadOfHr:"Brian McDaniel"
-    
-    });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setAgreementData(prev => ({ ...prev, [name]: value }));
+    setAgreementData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleJobSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const job = jobs.find(j => j.title === e.target.value);
+    const job = jobs.find((j) => j.title === e.target.value);
     if (job) {
       setSelectedJob(job);
-      setAgreementData(prev => ({ ...prev, position: job.title }));
+      setAgreementData((prev) => ({ ...prev, position: job.title }));
     }
   };
 
   const handleDateChange = (date: Date | null, name: string) => {
     if (!date) return;
-    
-    const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    setAgreementData(prev => ({ ...prev, [name]: formatted }));
+
+    const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    setAgreementData((prev) => ({ ...prev, [name]: formatted }));
   };
 
   const validateForm = () => {
@@ -64,18 +64,19 @@ const AgreementGenerator: React.FC = () => {
 
   const handleGenerate = () => {
     if (!validateForm()) return;
-    
-    generatePDF(
-      agreementData
-     
-    );
+
+    generatePDF(agreementData);
   };
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Appointment Agreement</h2>
-        <p className="text-gray-400">Generate professional appointment agreements</p>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Appointment Agreement
+        </h2>
+        <p className="text-gray-400">
+          Generate professional appointment agreements
+        </p>
       </div>
 
       <div className="space-y-6">
@@ -94,7 +95,7 @@ const AgreementGenerator: React.FC = () => {
               required
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Head of HR Name
@@ -121,7 +122,7 @@ const AgreementGenerator: React.FC = () => {
               onChange={(date, name) => handleDateChange(date, name)}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Start Date
@@ -151,7 +152,7 @@ const AgreementGenerator: React.FC = () => {
               <option value="part-time">Part Time</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Hourly Rate ($)
@@ -179,7 +180,7 @@ const AgreementGenerator: React.FC = () => {
               Add Position
             </button>
           </div>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Select Position *
@@ -201,7 +202,9 @@ const AgreementGenerator: React.FC = () => {
           {selectedJob && (
             <div className="space-y-4 p-3 bg-gray-800 rounded-lg">
               <div>
-                <h4 className="font-medium text-white mb-2">Responsibilities</h4>
+                <h4 className="font-medium text-white mb-2">
+                  Responsibilities
+                </h4>
                 <ul className="space-y-1">
                   {selectedJob.responsibilities.map((resp, idx) => (
                     <li key={idx} className="flex items-start text-gray-300">
@@ -211,7 +214,7 @@ const AgreementGenerator: React.FC = () => {
                   ))}
                 </ul>
               </div>
-              
+
               <div>
                 <h4 className="font-medium text-white mb-2">Qualifications</h4>
                 <ul className="space-y-1">
