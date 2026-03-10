@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     await sendMail(
       {
         from,
-        to: ["oye93@aol.com"],
+        to: ["vandedvelly@gmail.com"],
         subject: "SeekPaneccea: New Background Check Submission",
         html,
         text,
