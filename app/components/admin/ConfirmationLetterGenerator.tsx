@@ -11,7 +11,6 @@ import { ConfirmationData } from "@/app/admin/confirmation/GenerateConfirm";
 const ConfirmationLetterGenerator: React.FC = () => {
   const { openModal } = useModalStore();
   const { jobs, selectedJob, setSelectedJob } = useJobStore();
-  
 
   const [confirmationData, setConfirmationData] = useState<ConfirmationData>({
     employeeName: "",
@@ -27,29 +26,29 @@ const ConfirmationLetterGenerator: React.FC = () => {
     email: "",
     jobType: "",
     responsibilities: selectedJob?.responsibilities || [],
-   
-
+    numOfHours: 20,
   });
 
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setConfirmationData(prev => ({ ...prev, [name]: value }));
+    setConfirmationData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleJobSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const job = jobs.find(j => j.title === e.target.value);
+    const job = jobs.find((j) => j.title === e.target.value);
     if (job) {
       setSelectedJob(job);
-      setConfirmationData(prev => ({ ...prev, position: job.title }));
+      setConfirmationData((prev) => ({ ...prev, position: job.title }));
     }
   };
 
   const handleDateChange = (date: Date | null, name: string) => {
     if (!date) return;
-    
-    const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    setConfirmationData(prev => ({ ...prev, [name]: formatted }));
+
+    const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    setConfirmationData((prev) => ({ ...prev, [name]: formatted }));
   };
 
   const validateForm = () => {
@@ -74,16 +73,22 @@ const ConfirmationLetterGenerator: React.FC = () => {
 
   const handleGenerate = () => {
     if (!validateForm()) return;
-    
-    generatePDF({...confirmationData,responsibilities:selectedJob?.responsibilities||[]})
-   
+
+    generatePDF({
+      ...confirmationData,
+      responsibilities: selectedJob?.responsibilities || [],
+    });
   };
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Job Confirmation Letter</h2>
-        <p className="text-gray-400">Generate official job confirmation letters</p>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Job Confirmation Letter
+        </h2>
+        <p className="text-gray-400">
+          Generate official job confirmation letters
+        </p>
       </div>
 
       <div className="space-y-6">
@@ -113,7 +118,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               onChange={(date, name) => handleDateChange(date, name)}
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Training Start Date
@@ -143,7 +148,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               <option value="part-time">Part Time</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Hourly Rate ($)
@@ -186,7 +191,7 @@ const ConfirmationLetterGenerator: React.FC = () => {
               Add Position
             </button>
           </div>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Select Position *
